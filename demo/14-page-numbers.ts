@@ -1,7 +1,7 @@
 // Page numbers
 
 import * as fs from "fs";
-import { AlignmentType, Document, Footer, Header, Packer, PageBreak, PageNumber, Paragraph, TextRun } from "better-docx";
+import { AlignmentType, Document, Footer, Header, Packer, PageBreak, PageNumber, Paragraph, TextRun } from "betterdocx";
 
 const doc = new Document({
     sections: [

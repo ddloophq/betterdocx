@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { Document, Packer, Paragraph, LevelFormat } from "better-docx";
+import { Document, Packer, Paragraph, LevelFormat } from "betterdocx";
 
 const doc = new Document({
     numbering: {

@@ -14,7 +14,7 @@ import {
     ShadingType,
     Tab,
     TextRun,
-} from "better-docx";
+} from "betterdocx";
 
 /*
     For reference, see

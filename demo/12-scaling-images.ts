@@ -1,7 +1,7 @@
 // Scaling images
 
 import * as fs from "fs";
-import { Document, ImageRun, Packer, Paragraph } from "better-docx";
+import { Document, ImageRun, Packer, Paragraph } from "betterdocx";
 
 const doc = new Document({
     sections: [

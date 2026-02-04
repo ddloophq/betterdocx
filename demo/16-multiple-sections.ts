@@ -1,7 +1,7 @@
 // Multiple sections and headers
 
 import * as fs from "fs";
-import { Document, Footer, Header, Packer, PageNumber, NumberFormat, PageOrientation, Paragraph, TextRun } from "better-docx";
+import { Document, Footer, Header, Packer, PageNumber, NumberFormat, PageOrientation, Paragraph, TextRun } from "betterdocx";
 
 const doc = new Document({
     sections: [

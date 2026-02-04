@@ -1,7 +1,7 @@
 // Add images to header and footer
 
 import * as fs from "fs";
-import { Document, Footer, Header, ImageRun, Packer, Paragraph } from "better-docx";
+import { Document, Footer, Header, ImageRun, Packer, Paragraph } from "betterdocx";
 
 const doc = new Document({
     sections: [

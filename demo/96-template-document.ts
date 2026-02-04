@@ -14,7 +14,7 @@ import {
     TextDirection,
     TextRun,
     VerticalAlignTable,
-} from "better-docx";
+} from "betterdocx";
 
 patchDocument({
     outputType: "nodebuffer",

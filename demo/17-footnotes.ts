@@ -1,7 +1,7 @@
 // Footnotes
 
 import * as fs from "fs";
-import { Document, FootnoteReferenceRun, Packer, Paragraph, TextRun } from "better-docx";
+import { Document, FootnoteReferenceRun, Packer, Paragraph, TextRun } from "betterdocx";
 
 const doc = new Document({
     footnotes: {

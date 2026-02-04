@@ -1,7 +1,7 @@
 // Example demonstrating line numbers.
 
 import * as fs from "fs";
-import { Document, HeadingLevel, LineNumberRestartFormat, Packer, Paragraph } from "better-docx";
+import { Document, HeadingLevel, LineNumberRestartFormat, Packer, Paragraph } from "betterdocx";
 
 const doc = new Document({
     sections: [

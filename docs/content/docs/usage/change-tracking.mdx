@@ -5,7 +5,7 @@ title: Change Tracking
 > Instead of adding a `TextRun` into a `Paragraph`, you can also add an `InsertedTextRun` or `DeletedTextRun` where you need to supply an `id`, `author` and `date` for the change.
 
 ```ts
-import { Paragraph, TextRun, InsertedTextRun, DeletedTextRun } from "better-docx";
+import { Paragraph, TextRun, InsertedTextRun, DeletedTextRun } from "betterdocx";
 
 const paragraph = new Paragraph({
     children: [
@@ -32,7 +32,7 @@ const paragraph = new Paragraph({
 Note that for a `InsertedTextRun` and `DeletedTextRun`, it is not possible to simply call it with only a text as in `new TextRun("some text")`, since the additional fields for change tracking need to be provided. Similar to a normal `TextRun` you can add additional text properties.
 
 ```ts
-import { Paragraph, TextRun, InsertedTextRun, DeletedTextRun } from "better-docx";
+import { Paragraph, TextRun, InsertedTextRun, DeletedTextRun } from "betterdocx";
 
 const paragraph = new Paragraph({
     children: [
@@ -53,7 +53,7 @@ const paragraph = new Paragraph({
 In addition to marking text as inserted or deleted, change tracking can also be added via the document settings. This will enable new changes to be tracked as well.
 
 ```ts
-import { Document } from "better-docx";
+import { Document } from "betterdocx";
 
 const doc = new Document({
     features: {

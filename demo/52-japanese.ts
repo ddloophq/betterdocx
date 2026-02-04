@@ -1,7 +1,7 @@
 // Japanese text - Need to use a Japanese font
 
 import * as fs from "fs";
-import { Document, HeadingLevel, Packer, Paragraph } from "better-docx";
+import { Document, HeadingLevel, Packer, Paragraph } from "betterdocx";
 
 const doc = new Document({
     styles: {

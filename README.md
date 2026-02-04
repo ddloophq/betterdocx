@@ -9,15 +9,15 @@ A modern fork of [docxjs](https://github.com/dolanmiu/docx)
 ## Installation
 
 ```bash
-npm install better-docx
-pnpm install better-docx
-bun install better-docx
+npm install betterdocx
+pnpm install betterdocx
+bun install betterdocx
 ```
 
 ## Quick Start
 
 ```typescript
-import { Document, Packer, Paragraph, TextRun } from "better-docx";
+import { Document, Packer, Paragraph, TextRun } from "betterdocx";
 import * as fs from "fs";
 
 const doc = new Document({

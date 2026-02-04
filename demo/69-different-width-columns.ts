@@ -1,7 +1,7 @@
 // Sections with multiple columns
 
 import * as fs from "fs";
-import { Column, Document, Packer, Paragraph } from "better-docx";
+import { Column, Document, Packer, Paragraph } from "betterdocx";
 
 const doc = new Document({
     sections: [

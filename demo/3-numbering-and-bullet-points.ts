@@ -1,7 +1,7 @@
 // Numbering and bullet points example
 
 import * as fs from "fs";
-import { AlignmentType, convertInchesToTwip, Document, Footer, Header, HeadingLevel, LevelFormat, Packer, Paragraph } from "better-docx";
+import { AlignmentType, convertInchesToTwip, Document, Footer, Header, HeadingLevel, LevelFormat, Packer, Paragraph } from "betterdocx";
 
 const doc = new Document({
     numbering: {

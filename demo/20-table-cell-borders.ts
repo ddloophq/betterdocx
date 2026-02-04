@@ -1,7 +1,7 @@
 // Add custom borders to table cell
 
 import * as fs from "fs";
-import { BorderStyle, Document, Packer, Paragraph, Table, TableCell, TableRow } from "better-docx";
+import { BorderStyle, Document, Packer, Paragraph, Table, TableCell, TableRow } from "betterdocx";
 
 const doc = new Document({
     sections: [

@@ -1,6 +1,6 @@
 // Simple example to add check boxes to a document
 import * as fs from "fs";
-import { Document, Packer, Paragraph, TextRun, CheckBox } from "better-docx";
+import { Document, Packer, Paragraph, TextRun, CheckBox } from "betterdocx";
 
 const doc = new Document({
     sections: [

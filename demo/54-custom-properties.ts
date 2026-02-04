@@ -4,7 +4,7 @@
 // and subject) cover typical use cases, but sometimes custom properties are required.
 
 import * as fs from "fs";
-import { Document, Packer } from "better-docx";
+import { Document, Packer } from "betterdocx";
 
 const doc = new Document(
     // Standard properties

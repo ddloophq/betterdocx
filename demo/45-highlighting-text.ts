@@ -1,7 +1,7 @@
 // Highlighting text
 
 import * as fs from "fs";
-import { AlignmentType, Document, Header, Packer, Paragraph, TextRun } from "better-docx";
+import { AlignmentType, Document, Header, Packer, Paragraph, TextRun } from "betterdocx";
 
 const doc = new Document({
     sections: [

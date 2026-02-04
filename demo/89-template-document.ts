@@ -1,7 +1,7 @@
 // Patch a document with patches
 
 import * as fs from "fs";
-import { IPatch, patchDocument, PatchType, TextRun } from "better-docx";
+import { IPatch, patchDocument, PatchType, TextRun } from "betterdocx";
 
 export const font = "Trebuchet MS";
 export const getPatches = (fields: { [key: string]: string }) => {

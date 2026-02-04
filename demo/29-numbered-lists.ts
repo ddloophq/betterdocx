@@ -2,7 +2,7 @@
 // The lists can also be restarted by specifying the instance number
 
 import * as fs from "fs";
-import { AlignmentType, convertInchesToTwip, Document, HeadingLevel, LevelFormat, Packer, Paragraph } from "better-docx";
+import { AlignmentType, convertInchesToTwip, Document, HeadingLevel, LevelFormat, Packer, Paragraph } from "betterdocx";
 
 const doc = new Document({
     numbering: {

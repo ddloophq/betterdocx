@@ -1,5 +1,5 @@
 // Simple example to add textbox to a document
-import { Document, Packer, Paragraph, Textbox, TextRun } from "better-docx";
+import { Document, Packer, Paragraph, Textbox, TextRun } from "betterdocx";
 import * as fs from "fs";
 
 const doc = new Document({

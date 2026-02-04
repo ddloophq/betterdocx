@@ -1,7 +1,7 @@
 // This example shows 3 styles using XML styles
 
 import * as fs from "fs";
-import { Document, HeadingLevel, Packer, Paragraph } from "better-docx";
+import { Document, HeadingLevel, Packer, Paragraph } from "betterdocx";
 
 const styles = fs.readFileSync("./demo/assets/custom-styles.xml", "utf-8");
 const doc = new Document({

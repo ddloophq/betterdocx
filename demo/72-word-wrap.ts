@@ -1,7 +1,7 @@
 // Example on how to preserve word wrap text. Works with all languages.
 
 import * as fs from "fs";
-import { Document, Packer, Paragraph, TextRun } from "better-docx";
+import { Document, Packer, Paragraph, TextRun } from "betterdocx";
 
 const doc = new Document({
     sections: [

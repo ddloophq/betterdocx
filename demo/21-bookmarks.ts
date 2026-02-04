@@ -12,7 +12,7 @@ import {
     Paragraph,
     TextRun,
     PageReference,
-} from "better-docx";
+} from "betterdocx";
 
 const LOREM_IPSUM =
     /* cspell:disable-next-line */

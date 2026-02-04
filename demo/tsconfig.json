@@ -3,8 +3,12 @@
     "compilerOptions": {
         "rootDir": "./",
         "paths": {
-            "better-docx": ["../dist"]
+            "betterdocx": [
+                "../dist"
+            ]
         }
     },
-    "include": ["../demo"]
+    "include": [
+        "../demo"
+    ]
 }

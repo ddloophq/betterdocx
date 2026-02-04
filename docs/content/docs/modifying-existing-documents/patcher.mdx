@@ -11,7 +11,7 @@ The patcher allows you to modify existing documents, and add new content to them
 ## Usage
 
 ```ts
-import { patchDocument } from "better-docx";
+import { patchDocument } from "betterdocx";
 
 patchDocument(documentBuffer, {
     patches: {
@@ -123,7 +123,7 @@ patchDocument(documentBuffer, {
 When a placeholder token is not found in the document, the patcher will throw a `TokenNotFoundError`. This error includes the specific token that couldn't be found, making it easier to debug patching issues.
 
 ```ts
-import { patchDocument, TokenNotFoundError, PatchType, TextRun } from "better-docx";
+import { patchDocument, TokenNotFoundError, PatchType, TextRun } from "betterdocx";
 
 try {
     await patchDocument({
@@ -155,7 +155,7 @@ try {
 Before patching a document, you may want to know which placeholders are actually present in the template. The `patchDetector` function scans a document and returns an array of all placeholder tokens it finds. This is especially useful when working with multiple templates that use different placeholders, or to avoid expensive operations for placeholders that don't exist in the current template.
 
 ```ts
-import { patchDetector, patchDocument, PatchType, ImageRun } from "better-docx";
+import { patchDetector, patchDocument, PatchType, ImageRun } from "betterdocx";
 
 const placeholders = await patchDetector({ data: documentBuffer });
 // Returns: ['name', 'address', 'company_logo']

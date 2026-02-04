@@ -1,7 +1,7 @@
 // Table of contents
 
 import * as fs from "fs";
-import { File, HeadingLevel, Packer, Paragraph, StyleLevel, TableOfContents } from "better-docx";
+import { File, HeadingLevel, Packer, Paragraph, StyleLevel, TableOfContents } from "betterdocx";
 
 // WordprocessingML docs for TableOfContents can be found here:
 // http://officeopenxml.com/WPtableOfContents.php

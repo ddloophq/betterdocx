@@ -1,7 +1,7 @@
 // Patch a document with patches
 
 import * as fs from "fs";
-import { patchDocument, PatchType, TextRun } from "better-docx";
+import { patchDocument, PatchType, TextRun } from "betterdocx";
 
 patchDocument({
     outputType: "nodebuffer",

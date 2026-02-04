@@ -1,7 +1,7 @@
 // The demo on the README.md
 
 import * as fs from "fs";
-import { Document, HeadingLevel, ImageRun, Packer, Paragraph, Table, TableCell, TableRow, VerticalAlignTable } from "better-docx";
+import { Document, HeadingLevel, ImageRun, Packer, Paragraph, Table, TableCell, TableRow, VerticalAlignTable } from "betterdocx";
 
 const table = new Table({
     rows: [

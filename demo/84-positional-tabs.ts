@@ -10,7 +10,7 @@ import {
     PositionalTabAlignment,
     PositionalTabRelativeTo,
     PositionalTabLeader,
-} from "better-docx";
+} from "betterdocx";
 
 const doc = new Document({
     sections: [

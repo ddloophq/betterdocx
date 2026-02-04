@@ -16,7 +16,7 @@ import {
     TabStopPosition,
     UnderlineType,
     LevelFormat,
-} from "better-docx";
+} from "betterdocx";
 
 const table = new Table({
     rows: [

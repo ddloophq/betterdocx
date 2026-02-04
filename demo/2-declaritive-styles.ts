@@ -11,7 +11,7 @@ import {
     Paragraph,
     TextRun,
     UnderlineType,
-} from "better-docx";
+} from "betterdocx";
 
 const doc = new Document({
     creator: "Clippy",
