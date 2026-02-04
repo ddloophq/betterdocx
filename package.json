@@ -93,7 +93,7 @@
         "husky": "^9.1.7",
         "inquirer": "^13.1.0",
         "jiti": "^2.6.1",
-        "jsdom": "^27.4.0",
+        "jsdom": "^28.0.0",
         "prettier": "^3.7.4",
         "tsconfig-paths": "^4.2.0",
         "tsx": "^4.21.0",
