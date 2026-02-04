@@ -68,7 +68,7 @@
     },
     "devDependencies": {
         "@commitlint/cli": "^19.6.1",
-        "@commitlint/config-conventional": "^19.6.0",
+        "@commitlint/config-conventional": "^20.4.1",
         "@types/inquirer": "^9.0.9",
         "@types/node": "^24.1.0",
         "@types/prompt": "^1.1.9",
