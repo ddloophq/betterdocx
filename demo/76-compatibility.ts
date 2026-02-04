@@ -1,7 +1,7 @@
 // Add compatibility options
 
 import * as fs from "fs";
-import { Document, Packer, Paragraph, TextRun } from "docx";
+import { Document, Packer, Paragraph, TextRun } from "better-docx";
 
 const doc = new Document({
     compatibility: {

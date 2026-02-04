@@ -13,7 +13,7 @@ import {
     TableRow,
     TextDirection,
     VerticalAlignTable,
-} from "docx";
+} from "better-docx";
 
 const table = new Table({
     rows: [

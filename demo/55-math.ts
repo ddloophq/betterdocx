@@ -23,7 +23,7 @@ import {
     TextRun,
     MathLimitLower,
     MathLimitUpper,
-} from "docx";
+} from "better-docx";
 
 const doc = new Document({
     sections: [

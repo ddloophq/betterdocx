@@ -12,7 +12,7 @@ import {
     Tab,
     TextRun,
     VerticalPositionAlign,
-} from "docx";
+} from "better-docx";
 
 const doc = new Document({
     sections: [

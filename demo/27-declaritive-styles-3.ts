@@ -1,7 +1,7 @@
 // Custom styles using JavaScript configuration
 
 import * as fs from "fs";
-import { Document, convertInchesToTwip, HeadingLevel, Packer, Paragraph, UnderlineType } from "docx";
+import { Document, convertInchesToTwip, HeadingLevel, Packer, Paragraph, UnderlineType } from "better-docx";
 
 const doc = new Document({
     styles: {

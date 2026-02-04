@@ -2,7 +2,7 @@
 // Reference from https://papersizes.io/a/a3
 
 import * as fs from "fs";
-import { convertMillimetersToTwip, Document, Packer, PageOrientation, Paragraph } from "docx";
+import { convertMillimetersToTwip, Document, Packer, PageOrientation, Paragraph } from "better-docx";
 
 const doc = new Document({
     sections: [

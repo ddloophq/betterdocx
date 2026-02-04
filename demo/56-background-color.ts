@@ -1,7 +1,7 @@
 // Change background colour of whole document
 
 import * as fs from "fs";
-import { Document, Packer, Paragraph, Tab, TextRun } from "docx";
+import { Document, Packer, Paragraph, Tab, TextRun } from "better-docx";
 
 const doc = new Document({
     background: {

@@ -1,7 +1,7 @@
 // Page break before example
 
 import * as fs from "fs";
-import { Document, Packer, Paragraph } from "docx";
+import { Document, Packer, Paragraph } from "better-docx";
 
 const doc = new Document({
     sections: [

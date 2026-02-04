@@ -1,7 +1,7 @@
 // Simple example to add text to a document
 
 import * as fs from "fs";
-import { Document, LineRuleType, Packer, Paragraph, TextRun } from "docx";
+import { Document, LineRuleType, Packer, Paragraph, TextRun } from "better-docx";
 
 const doc = new Document({
     sections: [

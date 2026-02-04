@@ -11,7 +11,7 @@ import {
     Paragraph,
     VerticalPositionAlign,
     VerticalPositionRelativeFrom,
-} from "docx";
+} from "better-docx";
 
 const doc = new Document({
     sections: [

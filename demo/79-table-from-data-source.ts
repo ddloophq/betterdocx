@@ -13,7 +13,7 @@ import {
     TextDirection,
     TextRun,
     WidthType,
-} from "docx";
+} from "better-docx";
 
 interface StockPrice {
     readonly date: Date;

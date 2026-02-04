@@ -15,7 +15,7 @@ import {
     TableCell,
     TableRow,
     WidthType,
-} from "docx";
+} from "better-docx";
 
 const table = new Table({
     rows: [

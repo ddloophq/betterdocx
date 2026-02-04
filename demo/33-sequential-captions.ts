@@ -1,7 +1,7 @@
 // Sequential Captions
 
 import * as fs from "fs";
-import { Document, Packer, Paragraph, SequentialIdentifier, TextRun } from "docx";
+import { Document, Packer, Paragraph, SequentialIdentifier, TextRun } from "better-docx";
 
 const doc = new Document({
     sections: [
