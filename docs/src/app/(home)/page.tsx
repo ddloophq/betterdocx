@@ -12,7 +12,7 @@ export default function HomePage() {
 
         {/* Title */}
         <h1 className="text-5xl sm:text-6xl font-bold tracking-tight">
-          docx
+          better docx
         </h1>
 
         {/* Description */}
@@ -55,13 +55,13 @@ export default function HomePage() {
             <span>→</span>
           </Link>
           <Link
-            href="https://github.com/ddloophq/docx/tree/master/demo"
+            href="https://github.com/ddloophq/betterdocx/tree/master/demo"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-fd-border bg-fd-background font-medium hover:bg-fd-secondary transition-colors"
           >
             Examples
           </Link>
           <Link
-            href="https://github.com/ddloophq/docx"
+            href="https://github.com/ddloophq/betterdocx"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-fd-border bg-fd-background font-medium hover:bg-fd-secondary transition-colors"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

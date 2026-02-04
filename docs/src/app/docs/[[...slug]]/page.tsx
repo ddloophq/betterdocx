@@ -15,7 +15,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
 
   const markdownUrl = `/llms.mdx${page.url}`;
   const filePath = page.slugs.join('/') + '.mdx';
-  const githubUrl = `https://github.com/ddloophq/docx/blob/master/fuma-docs/content/docs/${filePath}`;
+  const githubUrl = `https://github.com/ddloophq/betterdocx/blob/master/docs/content/docs/${filePath}`;
 
   return (
     <DocsPage toc={page.data.toc} full={page.data.full}>

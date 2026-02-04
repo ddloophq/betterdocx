@@ -4,10 +4,14 @@ const withMDX = createMDX();
 
 /** @type {import('next').NextConfig} */
 const config = {
-  output: 'export',
   reactStrictMode: true,
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'user-images.githubusercontent.com',
+      },
+    ],
   },
 };
 
