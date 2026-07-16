@@ -1,8 +1,4 @@
 {
-  "title": "Paragraph",
-  "pages": [
-    "index",
-    "text-frames",
-    "symbols"
-  ]
+    "title": "Paragraph",
+    "pages": ["index", "text-frames", "symbols"]
 }

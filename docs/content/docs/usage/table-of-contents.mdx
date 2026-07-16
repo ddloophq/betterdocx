@@ -33,10 +33,17 @@ const doc = new Document({
                     heading: HeadingLevel.HEADING_1,
                     pageBreakBefore: true,
                 }),
-            ]
-        }
-    ]
+            ],
+        },
+    ],
 });
+```
+
+The first constructor argument is the alias of the structured document tag that wraps the table of contents. Word shows it in the header of the content control when the table is selected. It defaults to `"Table of Contents"` if omitted; in the example above it is set to `"Summary"`.
+
+```ts
+new TableOfContents(); // alias defaults to "Table of Contents"
+new TableOfContents("Summary", { hyperlink: true });
 ```
 
 ## Table of Contents Options
@@ -62,8 +69,20 @@ Here is the list of all options that you can use to generate your tables of cont
 | preserveNewLineInEntries        | boolean      | `\x`             | Preserves newline characters within table entries.                                                                                                                                                                                                                                                                                                                                                               |
 | hideTabAndPageNumbersInWebView  | boolean      | `\z`             | Hides tab leader and page numbers in web page view (§17.18.102).                                                                                                                                                                                                                                                                                                                                                 |
 
+## StyleLevel
+
+The `stylesWithLevels` option takes an array of `StyleLevel` objects, each constructed with a style name and the table of contents level it maps to: `new StyleLevel(styleName, level)`.
+
+```ts
+new TableOfContents("Summary", {
+    hyperlink: true,
+    headingStyleRange: "1-5",
+    stylesWithLevels: [new StyleLevel("MySpectacularStyle", 1)],
+}),
+```
+
 ## Examples
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/28-table-of-contents.ts ':include')
+[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/28-table-of-contents.ts ":include")
 
 _Source: https://github.com/dolanmiu/docx/blob/master/demo/28-table-of-contents.ts_

@@ -1,0 +1,55 @@
+---
+title: Checkboxes
+---
+
+> Checkboxes requires an understanding of [Paragraphs](paragraph).
+
+`CheckBox` creates a checkbox content control. It is used as a child of a `Paragraph`:
+
+```ts
+import { CheckBox, Document, Paragraph, TextRun } from "betterdocx";
+
+const doc = new Document({
+    sections: [
+        {
+            children: [
+                new Paragraph({
+                    children: [
+                        new TextRun("Accept terms and conditions "),
+                        new CheckBox({ checked: true }),
+                    ],
+                }),
+            ],
+        },
+    ],
+});
+```
+
+By default the checkbox is unchecked and rendered with the `MS Gothic` font, using `☐` (`U+2610`) for the unchecked state and `☒` (`U+2612`) for the checked state.
+
+## Options
+
+All options are optional — `new CheckBox()` produces an unchecked box with the default glyphs.
+
+| Property       | Type                                | Notes    | Possible Values                                                                                                  |
+| -------------- | ----------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| alias          | `string`                            | Optional | A friendly name for the content control, e.g. `"Are you ok?"`                                                    |
+| checked        | `boolean`                           | Optional | Whether the checkbox starts checked. Defaults to `false`                                                         |
+| checkedState   | `{ value?: string, font?: string }` | Optional | Glyph for the checked state. `value` is a hex character code (e.g. `"2611"`), `font` defaults to `"MS Gothic"`   |
+| uncheckedState | `{ value?: string, font?: string }` | Optional | Glyph for the unchecked state. `value` is a hex character code (e.g. `"2610"`), `font` defaults to `"MS Gothic"` |
+
+## Custom glyphs
+
+The `value` of each state is the hexadecimal code of the character to display. For example, to use `☑` (`U+2611`) instead of the default `☒` for the checked state:
+
+```ts
+new Paragraph({
+    children: [
+        new CheckBox({
+            checked: true,
+            checkedState: { value: "2611", font: "MS Gothic" },
+            uncheckedState: { value: "2610", font: "MS Gothic" },
+        }),
+    ],
+});
+```

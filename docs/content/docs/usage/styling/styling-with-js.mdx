@@ -23,27 +23,27 @@ const name = new TextRun({
 
 ### Run formatting
 
--   `bold`, `italics`, `smallCaps`, `allCaps`, `strike`, `doubleStrike`, `subScript`, `superScript`: Set the formatting property to true
--   `underline({type="single", color=null})`: Set the underline style and color
--   `emphasisMark({type="dot"})`: Set the emphasis mark style
--   `color(color)`: Set the text color, using 6 hex characters for RRGGBB (no leading `#`)
--   `size(halfPts)`: Set the font size, measured in half-points
--   `font(name)` or `font({ascii, cs, eastAsia, hAnsi, hint})`: Set the run's font
--   `style(name)`: Apply a named run style
--   `characterSpacing(value)`: Set the character spacing adjustment (in TWIPs)
+- `bold`, `italics`, `smallCaps`, `allCaps`, `strike`, `doubleStrike`, `subScript`, `superScript`: Set the formatting property to true
+- `underline({type="single", color=null})`: Set the underline style and color
+- `emphasisMark({type="dot"})`: Set the emphasis mark style
+- `color(color)`: Set the text color, using 6 hex characters for RRGGBB (no leading `#`)
+- `size(halfPts)`: Set the font size, measured in half-points
+- `font(name)` or `font({ascii, cs, eastAsia, hAnsi, hint})`: Set the run's font
+- `style(name)`: Apply a named run style
+- `characterSpacing(value)`: Set the character spacing adjustment (in TWIPs)
 
 ### Paragraph formatting
 
--   `heading1`, `heading2`, `heading3`, `heading4`, `heading5`, `title`: apply the appropriate style to the paragraph
--   `left`, `center`, `right`, `justified`: set the paragraph's alignment
--   `thematicBreak`, `pageBreak`: Insert a thick rule or a page break beneath the paragraph
--   `leftTabStop(position)`: Add a left tab stop (measured in TWIPs from the left)
--   `maxRightTabStop`: Add a right tab stop at the far right
--   `bullet`: Use the default bullet style
--   `setNumbering(numbering, indentLevel)`: Use a custom numbering format for the paragraph
--   `style(name)`: Apply a named paragraph style
--   `indent(start, hanging=0)`: Set the paragraph's indent level (in TWIPs)
--   `spacing({before=0, after=0, line=0})`: Set the line and before/after on the paragraph. Before/after is measured in TWIPs, line is measured in 240ths of a line
+- `heading1`, `heading2`, `heading3`, `heading4`, `heading5`, `title`: apply the appropriate style to the paragraph
+- `left`, `center`, `right`, `justified`: set the paragraph's alignment
+- `thematicBreak`, `pageBreak`: Insert a thick rule or a page break beneath the paragraph
+- `leftTabStop(position)`: Add a left tab stop (measured in TWIPs from the left)
+- `maxRightTabStop`: Add a right tab stop at the far right
+- `bullet`: Use the default bullet style
+- `setNumbering(numbering, indentLevel)`: Use a custom numbering format for the paragraph
+- `style(name)`: Apply a named paragraph style
+- `indent(start, hanging=0)`: Set the paragraph's indent level (in TWIPs)
+- `spacing({before=0, after=0, line=0})`: Set the line and before/after on the paragraph. Before/after is measured in TWIPs, line is measured in 240ths of a line
 
 Paragraph styles have all the run formatting methods, except `style()`, and `left()`, `center()`, `right()`, `justified()`, `thematicBreak()`, `leftTabStop(position)`, `maxRightTabStop()`, `indent(start, hanging=0)`, and `spacing({before=0, after=0, line=0})` methods.
 
@@ -51,10 +51,10 @@ Paragraph styles have all the run formatting methods, except `style()`, and `lef
 
 There are 4 items in `docx` that can be styled:
 
--   Characters: Attributes that can change within a paragraph. e.g., bold, italics, etc.
--   Paragraphs: Attributes like indent, text alignment, line spacing, etc.
--   Tables: Border styles, table formats, etc.
--   List items: These are the numbers and bullets that are automatically inserted
+- Characters: Attributes that can change within a paragraph. e.g., bold, italics, etc.
+- Paragraphs: Attributes like indent, text alignment, line spacing, etc.
+- Tables: Border styles, table formats, etc.
+- List items: These are the numbers and bullets that are automatically inserted
 
 There are a few different ways of styling this content in `docx`, which somewhat resemble the HTML/CSS approach. In order of greatest to lowest priority:
 
@@ -89,7 +89,9 @@ const para = new Paragraph({
 
 ### Declaritive Styles (similar to external CSS)
 
-`docx` files contain a styles section separate from the main content, much like how HTML includes CSS files. Unlike CSS, `docx` distinguishes between styles meant for tables (which show up in the table formatting toolbar), styles for lists (which show up under bullets and numbering), and styles for runs and paragraphs, which show up as dropdowns offering standard styles, like "Heading 1", "Caption", or any custom styles defined in that document. {/* TODO: add pictures of the panes */} `docx` allows you to define these styles using a fluent interface as well.
+`docx` files contain a styles section separate from the main content, much like how HTML includes CSS files. Unlike CSS, `docx` distinguishes between styles meant for tables (which show up in the table formatting toolbar), styles for lists (which show up under bullets and numbering), and styles for runs and paragraphs, which show up as dropdowns offering standard styles, like "Heading 1", "Caption", or any custom styles defined in that document. {/* TODO: add pictures of the panes */}
+
+Of these, only **paragraph styles** and **character styles** can be defined through the JS API (via `styles.paragraphStyles` and `styles.characterStyles`). Table styles are not exposed in JS — to use them, supply a complete styles definition from an external XML file as described in [Styling with XML](styling-with-xml).
 
 To add styles, define your custom styles in the `document`:
 
@@ -139,20 +141,131 @@ const doc = new Document({
                 paragraph: {
                     spacing: {
                         before: 240,
-                        after: 120
+                        after: 120,
                     },
                 },
             },
-        ]
-    }
+        ],
+    },
 });
 ```
 
-**Note**: If you are using the `.headingX` or `.title` methods of paragraphs, you must make sure to define `HeadingX` or `Title` styles for these. Otherwise they'll show up un-styled :(. If you are using the `.bullet` or `.setNumbering` methods, you need to define a `ListParagraph` style or the numbers may not show up.
+**Note**: The library always generates built-in `Title`, `Heading1`–`Heading6`, `ListParagraph` and other default styles for you (see [Default style overrides](#default-style-overrides) below). Defining a paragraph style with the same `id` (like `Heading2` above) redefines that style wholesale; if you just want to tweak a built-in style, prefer `styles.default`.
+
+#### Character styles
+
+Character styles carry run formatting only. Define them with `styles.characterStyles` and apply them through a run's `style` option:
+
+```ts
+const doc = new Document({
+    styles: {
+        characterStyles: [
+            {
+                id: "strikeUnderline",
+                name: "Strike Underline",
+                basedOn: "DefaultParagraphFont",
+                quickFormat: true,
+                run: {
+                    strike: true,
+                    underline: {
+                        type: UnderlineType.SINGLE,
+                    },
+                },
+            },
+        ],
+    },
+    sections: [
+        {
+            children: [
+                new Paragraph({
+                    children: [
+                        new TextRun("Plain text, followed by "),
+                        new TextRun({
+                            text: "text using the character style",
+                            style: "strikeUnderline",
+                        }),
+                    ],
+                }),
+            ],
+        },
+    ],
+});
+```
+
+Unless you say otherwise, character styles are emitted with `uiPriority: 99` and `unhideWhenUsed: true`, matching how Word treats custom character styles; pass your own values to override this.
+
+#### Style metadata
+
+Besides `run` and `paragraph` formatting, both paragraph and character styles accept metadata fields that control inheritance and how the style behaves in Word's styles pane:
+
+- `name`: Human-friendly name shown in the UI
+- `basedOn`: `id` of the style to inherit from (must be a style of the same type)
+- `next`: `id` of the style applied to the following paragraph when you press Enter
+- `link`: `id` of a linked style, used to pair a paragraph style with its character-style counterpart
+- `uiPriority`: Sorting position of the style within the styles pane
+- `semiHidden`: Hide the style from the UI until it is used
+- `unhideWhenUsed`: Reveal the style in the UI once it appears in the document
+- `quickFormat`: Show the style in the quick-format style gallery
+
+#### Imported styles
+
+`styles.importedStyles` accepts pre-built style components — `StyleForParagraph` / `StyleForCharacter` instances or `ImportedXmlComponent`s parsed from existing XML — and injects them into the styles part as-is. **Caveat**: supplying `importedStyles` replaces the library's built-in default styles (document defaults, headings, etc.) entirely, so include your own equivalents if you need them.
 
 ### Document defaults
 
-Setting document defaults acts like a `*` rule in CSS: it applies to every paragraph and run in the document, but at a low priority level. Other styles affecting this property will override these defaults.
+Setting document defaults acts like a `*` rule in CSS: it applies to every paragraph and run in the document, but at a low priority level. Other styles affecting this property will override these defaults. Set them via `styles.default.document`:
+
+```ts
+const doc = new Document({
+    styles: {
+        default: {
+            document: {
+                run: {
+                    font: "Calibri",
+                    size: 22,
+                },
+                paragraph: {
+                    spacing: {
+                        line: 276,
+                    },
+                },
+            },
+        },
+    },
+});
+```
+
+### Default style overrides
+
+The library ships built-in styles that back the `heading`/`title` paragraph options, bullets/numbering, hyperlinks and footnotes. You can customize each of them under `styles.default`:
+
+- Paragraph styles: `title`, `heading1` … `heading6`, `strong`, `listParagraph`, `footnoteText`
+- Character styles: `hyperlink`, `footnoteReference`, `footnoteTextChar`
+- Plus `document` for the document defaults shown above
+
+```ts
+const doc = new Document({
+    styles: {
+        default: {
+            heading1: {
+                run: {
+                    bold: true,
+                },
+                paragraph: {
+                    spacing: { after: 120 },
+                },
+            },
+            hyperlink: {
+                run: {
+                    color: "FF0000",
+                },
+            },
+        },
+    },
+});
+```
+
+Your overrides are merged into the built-in defaults one level deep within `run` and `paragraph`: the `heading1` override above keeps the built-in Heading 1 color (`2E74B5`) and size while adding bold. Note that any individual property you set replaces the built-in value for that property wholesale — including properties that are themselves objects, such as `underline`.
 
 ## Advanced formatting
 
@@ -182,22 +295,22 @@ To determine the value of a styling property, you must first identify whether it
 
 The following properties are treated in a special manner; they're called toggle properties:
 
--   Bold
--   All caps
--   Small caps
--   Italics
--   Single strike-through
--   Hidden
--   Imprint
--   Emboss
--   Character outline
--   Character shadow
+- Bold
+- All caps
+- Small caps
+- Italics
+- Single strike-through
+- Hidden
+- Imprint
+- Emboss
+- Character outline
+- Character shadow
 
 For these properties, the rules state the following conflict resolution in case the property is specified at multiple points for the same item:
 
--   Direct formatting trumps all if specified (either true or false)
--   Otherwise, if the property is true in document defaults, the property is set to true
--   Otherwise, the property's value is an XOR of its effective table, paragraph, and character values. (So specifying bold `true` on a table style and a paragraph style would result in non-bold text if a paragraph inside the table had that style)
+- Direct formatting trumps all if specified (either true or false)
+- Otherwise, if the property is true in document defaults, the property is set to true
+- Otherwise, the property's value is an XOR of its effective table, paragraph, and character values. (So specifying bold `true` on a table style and a paragraph style would result in non-bold text if a paragraph inside the table had that style)
 
 ## Examples
 
@@ -205,6 +318,6 @@ For these properties, the rules state the following conflict resolution in case 
 
 Importing Images from file system path
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/2-declaritive-styles.ts ':include')
+[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/2-declaritive-styles.ts ":include")
 
 _Source: https://github.com/dolanmiu/docx/blob/master/demo/2-declaritive-styles.ts_

@@ -4,17 +4,19 @@ title: Packers
 
 > Packers are the way in which `docx` turns your code into `.docx` format. It is completely decoupled from the `docx.Document`.
 
-Packers works in both a node and browser environment (Angular etc). Now, the packer returns a `Buffer`, `Blob`, `string`, `base64 string`, `ArrayBuffer`, or `Stream`. It is up to you to take that and persist it with node's `fs`, send it down as a downloadable file, or anything else you wish. As of `version 4+`, this library will not have options to export to PDF.
+Packers work in browsers, workers, Node.js, Bun, and Deno. A packer can return portable `Uint8Array` bytes, a `Blob`, a string, a base64 string, an `ArrayBuffer`, or a web `ReadableStream`. It is up to you to persist or transfer that output. This library does not export PDF.
 
-### Export as Buffer
+### Export as portable bytes
 
-This will return a NodeJS `Buffer`. If this is used in the browser, it will return a `UInt8Array` instead.
+`toUint8Array` works consistently in every supported runtime. Node's file APIs accept a `Uint8Array` directly.
 
 ```ts
-Packer.toBuffer(doc).then((buffer) => {
-    fs.writeFileSync("My Document.docx", buffer);
+Packer.toUint8Array(doc).then((bytes) => {
+    fs.writeFileSync("My Document.docx", bytes);
 });
 ```
+
+`toBuffer` remains as a deprecated alias for compatibility and also returns a `Uint8Array`.
 
 ### Export as string
 
@@ -55,17 +57,42 @@ Packer.toArrayBuffer(doc).then((arrayBuffer) => {
 
 ### Export as a Stream
 
+`toReadableStream` returns a web-standard [`ReadableStream`](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream), which works in the browser and in Node.js.
+
 ```ts
-Packer.toStream(doc).then((stream) => {
-    // read from stream
-});
+const stream = Packer.toReadableStream(doc);
+
+// In the browser, e.g. as a Response body
+const response = new Response(stream);
+
+// In Node.js, pipe to a file
+import { Writable } from "node:stream";
+import * as fs from "node:fs";
+await stream.pipeTo(Writable.toWeb(fs.createWriteStream("example.docx")));
 ```
 
 ### Export using optional arguments
 
 The `Packer` methods support 2 optional arguments.
 
-The first is for controlling the indentation of the xml and should be a `boolean` or `keyof typeof PrettifyType`.
+The first is for controlling the indentation of the xml and should be a `boolean` or one of the `PrettifyType` values:
+
+| PrettifyType    | Indentation string  |
+| --------------- | ------------------- |
+| `NONE`          | `""`                |
+| `WITH_2_BLANKS` | `"  "` (2 spaces)   |
+| `WITH_4_BLANKS` | `"    "` (4 spaces) |
+| `WITH_TAB`      | `"\t"` (tab)        |
+
+Passing `prettify: true` is equivalent to `PrettifyType.WITH_2_BLANKS` (two spaces); `false` (or omitting the argument) leaves the xml unindented.
+
+```ts
+import { Packer, PrettifyType } from "betterdocx";
+
+Packer.toString(doc, PrettifyType.WITH_4_BLANKS).then((string) => {
+    console.log(string);
+});
+```
 
 The second is an array of subfile overrides (`{path: string, data: string}[]`). These overrides can be used to write additional subfiles to the result or even override default subfiles in the case that the default handling of these subfiles does not meet your needs.
 
@@ -78,10 +105,21 @@ Packer.toString(doc, true, overrides).then((string) => {
 
 ### Export to arbitrary formats
 
-You can also use the lower-level `Packer.pack` method to export to any specified type.
+You can also use the lower-level `Packer.pack` method to export to any specified output type. It supports the full `OutputType` set:
+
+`base64`, `string`, `binarystring`, `array`, `uint8array`, `arraybuffer`, `blob`
+
+The return type follows the requested output type — for example, `"uint8array"` resolves to a `Uint8Array`:
 
 ```ts
-Packer.pack(doc, 'string').then((string) => {
+const bytes = await Packer.pack(doc, "uint8array");
+await fs.promises.writeFile("My Document.docx", bytes);
+```
+
+`Packer.pack` also accepts the same optional `prettify` and `overrides` arguments as the convenience methods:
+
+```ts
+Packer.pack(doc, "string", PrettifyType.WITH_TAB).then((string) => {
     console.log(string);
 });
 ```

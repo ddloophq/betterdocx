@@ -21,20 +21,22 @@ import { Document, Packer, Paragraph, TextRun } from "betterdocx";
 import * as fs from "fs";
 
 const doc = new Document({
-    sections: [{
-        properties: {},
-        children: [
-            new Paragraph({
-                children: [
-                    new TextRun("Hello World"),
-                    new TextRun({
-                        text: "Foo Bar",
-                        bold: true,
-                    }),
-                ],
-            }),
-        ],
-    }],
+    sections: [
+        {
+            properties: {},
+            children: [
+                new Paragraph({
+                    children: [
+                        new TextRun("Hello World"),
+                        new TextRun({
+                            text: "Foo Bar",
+                            bold: true,
+                        }),
+                    ],
+                }),
+            ],
+        },
+    ],
 });
 
 Packer.toBuffer(doc).then((buffer) => {
@@ -54,7 +56,7 @@ Check the [docs folder](./docs/content/docs) for comprehensive documentation inc
 
 ## Examples
 
-Check the [demo folder](./demo) for examples.
+Check the [demo folder](./library/demo) for examples.
 
 ## Contributing
 

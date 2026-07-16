@@ -44,22 +44,54 @@ You can also get the page number of the bookmark by creating a page reference to
 
 ```ts
 const paragraph = new Paragraph({
-    children: [new TextRun("Chapter 1 can be seen on page "), new PageReference("anchorForChapter1")],
+    children: [
+        new TextRun("Chapter 1 can be seen on page "),
+        new PageReference("anchorForChapter1"),
+    ],
 });
 ```
+
+`PageReference` accepts an options object as a second argument:
+
+```ts
+new PageReference("anchorForChapter1", { hyperlink: true });
+```
+
+| Option                | Field switch | Description                                                                                                                                   |
+| --------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `hyperlink`           | `\h`         | Makes the page number a hyperlink to the bookmarked paragraph.                                                                                |
+| `useRelativePosition` | `\p`         | Displays the position relative to the bookmark: "above" or "below" when the field is on the same page as the bookmark, "on page #" otherwise. |
 
 ### Numbered item reference
 
-You can also create cross references for numbered items with `NumberedItemReference`.
+You can also create cross references to numbered items (e.g. numbered paragraphs) with `NumberedItemReference`. It takes the bookmark anchor and an options object:
 
 ```ts
 const paragraph = new Paragraph({
-    children: [new TextRun("See Paragraph "), new NumberedItemReference("anchorForParagraph1", "1.1")],
+    children: [
+        new TextRun("See Paragraph "),
+        new NumberedItemReference("anchorForParagraph1", { cachedValue: "1.1" }),
+    ],
 });
 ```
 
+| Option            | Default                                    | Description                                                                         |
+| ----------------- | ------------------------------------------ | ----------------------------------------------------------------------------------- |
+| `cachedValue`     | -                                          | The cached field result shown in the document until the field is updated.           |
+| `hyperlink`       | `true`                                     | Adds the `\h` switch, making the reference a hyperlink to the bookmarked paragraph. |
+| `referenceFormat` | `NumberedItemReferenceFormat.FULL_CONTEXT` | Which paragraph number format switch to use, see below.                             |
+
+The `referenceFormat` option controls how the paragraph number is rendered, using the `NumberedItemReferenceFormat` enum:
+
+| Value          | Field switch | Description                                                                                    |
+| -------------- | ------------ | ---------------------------------------------------------------------------------------------- |
+| `NONE`         | -            | No format switch is added.                                                                     |
+| `RELATIVE`     | `\r`         | Inserts the paragraph number relative to its position in the numbering scheme.                 |
+| `NO_CONTEXT`   | `\n`         | The paragraph number without trailing periods; prior numbered levels are not displayed.        |
+| `FULL_CONTEXT` | `\w`         | The entire paragraph number without trailing periods, regardless of the location of the field. |
+
 > [!NOTE]
-> The `NumberedItemReference` currently needs a cached value (in this case `1.1`)
+> The `NumberedItemReference` currently needs a cached value (in this case `1.1`). Passing the cached value as a second string argument (`new NumberedItemReference("anchor", "1.1")`) still works but is deprecated — pass `cachedValue` in the options object instead.
 
 ## External
 
@@ -107,3 +139,7 @@ const styledLink = new ExternalHyperlink({
     link: "https://docx.js.org",
 });
 ```
+
+## Low-level primitives (advanced)
+
+Both `InternalHyperlink` and `ExternalHyperlink` are convenience wrappers. Under the hood, every link becomes a `ConcreteHyperlink`, which writes the raw `w:hyperlink` element with an explicit relationship id — external links are converted automatically when the document is packed, and their URL is registered in the relationships part. The exported `HyperlinkType` constant (`INTERNAL` / `EXTERNAL`) distinguishes the two kinds. Related to document navigation is `OutlineLevel` (`w:outlineLvl`), a paragraph property that assigns an outline level to a paragraph; it is more conveniently set through the `outlineLevel` option on `Paragraph`. You will rarely need these classes directly, but they are available for advanced scenarios such as custom relationship handling.

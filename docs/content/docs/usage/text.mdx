@@ -10,11 +10,48 @@ You can add multiple `text runs` in `Paragraphs`. This is the most verbose way o
 import { Paragraph, TextRun } from "betterdocx";
 
 const paragraph = new Paragraph({
-    children: [new TextRun("My awesome text here for my university dissertation"), new TextRun("Foo Bar")],
+    children: [
+        new TextRun("My awesome text here for my university dissertation"),
+        new TextRun("Foo Bar"),
+    ],
 });
 ```
 
 Text objects have methods inside which changes the way the text is displayed.
+
+## Font, Size and Color
+
+The most common run options set the font face, size and color. `size` is measured in half-points (so `28` is 14pt); it also accepts measure strings such as `"14pt"`. `color` is a hex color value. `style` applies a character style defined in your document's styles by its style id.
+
+```ts
+const text = new TextRun({
+    text: "Big red Calibri",
+    font: "Calibri",
+    size: 28, // 14pt
+    color: "FF0000",
+    style: "myCharacterStyle",
+});
+```
+
+`font` accepts three forms:
+
+| Form             | Type                                                       | Notes                                                                        |
+| ---------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Font name        | `string`                                                   | Applies the font to all scripts                                              |
+| Name with hint   | `{ name: string, hint?: string }`                          | Same as above, with a font substitution hint                                 |
+| Per-script fonts | `{ ascii?, cs?, eastAsia?, hAnsi?, hint? }` (all `string`) | Set different fonts for ASCII, complex-script, East Asian and high-ANSI text |
+
+```ts
+const text = new TextRun({
+    text: "Different fonts per script",
+    font: {
+        ascii: "Calibri",
+        eastAsia: "SimSun",
+        cs: "Arial",
+        hAnsi: "Calibri",
+    },
+});
+```
 
 ## Typographical Emphasis
 
@@ -44,10 +81,10 @@ Underline has a few options
 
 #### Options
 
-| Property | Type            | Notes    | Possible Values                                                                                                                                                           |
-| -------- | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| type     | `UnderlineType` | Optional | SINGLE, WORD, DOUBLE, THICK, DOTTED, DOTTEDHEAV, DASH, DASHEDHEAV, DASHLONG, DASHLONGHEAV, DOTDASH, DASHDOTHEAVY, DOTDOTDAS, DASHDOTDOTHEAVY, WAVE, WAVYHEAVY, WAVYDOUBLE |
-| color    | `string`        | Optional | Color Hex values                                                                                                                                                          |
+| Property | Type            | Notes    | Possible Values                                                                                                                                                                      |
+| -------- | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| type     | `UnderlineType` | Optional | SINGLE, WORDS, DOUBLE, THICK, DOTTED, DOTTEDHEAVY, DASH, DASHEDHEAVY, DASHLONG, DASHLONGHEAVY, DOTDASH, DASHDOTHEAVY, DOTDOTDASH, DASHDOTDOTHEAVY, WAVE, WAVYHEAVY, WAVYDOUBLE, NONE |
+| color    | `string`        | Optional | Color Hex values                                                                                                                                                                     |
 
 **Example:**
 
@@ -175,6 +212,108 @@ const text = new TextRun({
 });
 ```
 
+## Spacing, Position and Scale
+
+These options control fine typographic adjustments:
+
+| Property         | Type                                 | Notes                                                                                      |
+| ---------------- | ------------------------------------ | ------------------------------------------------------------------------------------------ |
+| characterSpacing | `number`                             | Extra space between characters, in twips (twentieths of a point). Negative values condense |
+| kern             | `number \| PositiveUniversalMeasure` | Minimum font size (half-points) at which kerning is applied                                |
+| position         | `number \| UniversalMeasure`         | Raises or lowers text relative to the baseline, in half-points or as e.g. `"6pt"`          |
+| scale            | `number`                             | Horizontally expands or compresses text, as a percentage (100 = normal)                    |
+
+```ts
+const text = new TextRun({
+    text: "Expanded and raised",
+    characterSpacing: 40, // 2pt of extra spacing
+    position: "6pt",
+    scale: 150,
+    kern: 24,
+});
+```
+
+## Border
+
+Runs can be given a text border using the same border options used elsewhere in the library:
+
+```ts
+const text = new TextRun({
+    text: "Text with a border",
+    border: {
+        style: BorderStyle.SINGLE,
+        color: "FF0000",
+        size: 4, // in 1/8 pt
+        space: 1, // in pt
+    },
+});
+```
+
+## Language
+
+Declares the language of the run, used for spell checking and font selection. All fields are optional:
+
+```ts
+const text = new TextRun({
+    text: "Guten Tag",
+    language: {
+        value: "de-DE",
+        eastAsia: "zh-CN",
+        bidirectional: "ar-SA",
+    },
+});
+```
+
+To exclude a run from spelling and grammar checking altogether, use `noProof`:
+
+```ts
+const text = new TextRun({
+    text: "betterdocx",
+    noProof: true,
+});
+```
+
+## Other Options
+
+| Property    | Type         | Notes                                                                         |
+| ----------- | ------------ | ----------------------------------------------------------------------------- |
+| rightToLeft | `boolean`    | Marks the run's contents as right-to-left                                     |
+| emboss      | `boolean`    | Displays text as if raised off the page                                       |
+| imprint     | `boolean`    | Displays text as if pressed into the page                                     |
+| snapToGrid  | `boolean`    | Aligns the run to the document grid when a grid is defined                    |
+| math        | `boolean`    | Treats the run as Office Open XML math text                                   |
+| effect      | `TextEffect` | Animated text effect (legacy Word feature; modern versions may not render it) |
+
+`TextEffect` values: `BLINK_BACKGROUND`, `LIGHTS`, `ANTS_BLACK`, `ANTS_RED`, `SHIMMER`, `SPARKLE`, `NONE`.
+
+```ts
+const text = new TextRun({
+    text: "Embossed marching ants",
+    emboss: true,
+    effect: TextEffect.ANTS_BLACK,
+});
+```
+
+## Complex Script Variants
+
+Word stores separate formatting for complex-script text (e.g. Arabic, Hebrew). By default these mirror the base option, but you can set them independently:
+
+| Property               | Type                                            | Notes                                                              |
+| ---------------------- | ----------------------------------------------- | ------------------------------------------------------------------ |
+| boldComplexScript      | `boolean`                                       | Defaults to the value of `bold`                                    |
+| italicsComplexScript   | `boolean`                                       | Defaults to the value of `italics`                                 |
+| sizeComplexScript      | `boolean \| number \| PositiveUniversalMeasure` | `true` (or omitted) mirrors `size`; a value sets it directly       |
+| highlightComplexScript | `boolean \| string`                             | `true` (or omitted) mirrors `highlight`; a string sets it directly |
+
+```ts
+const text = new TextRun({
+    text: "مرحبا",
+    bold: true,
+    size: 24,
+    sizeComplexScript: 32, // complex-script text renders at 16pt
+});
+```
+
 ## Break
 
 Sometimes you would want to put text underneath another line of text but inside the same paragraph.
@@ -192,5 +331,41 @@ Adding two breaks:
 const text = new TextRun({
     text: "break",
     break: 2,
+});
+```
+
+## Special Run Children
+
+Besides plain strings and `Tab`, a `TextRun`'s `children` array accepts a number of special elements:
+
+| Element                               | Description                                                              |
+| ------------------------------------- | ------------------------------------------------------------------------ |
+| `NoBreakHyphen`                       | A hyphen that never breaks across lines                                  |
+| `SoftHyphen`                          | An optional hyphen, only shown when the word breaks at that point        |
+| `CarriageReturn`                      | A carriage return within the run                                         |
+| `DayShort`, `MonthShort`, `YearShort` | The current day/month/year in short format (e.g. `05`, `01`, `26`)       |
+| `DayLong`, `MonthLong`, `YearLong`    | The current day/month/year in long format (e.g. `05`, `January`, `2026`) |
+
+```ts
+const text = new TextRun({
+    children: [
+        "Printed on ",
+        new MonthLong(),
+        " ",
+        new DayShort(),
+        ", ",
+        new YearLong(),
+        " — non",
+        new NoBreakHyphen(),
+        "breaking",
+    ],
+});
+```
+
+To break to the next column in a multi-column section, use `ColumnBreak`. It is a run itself, so it goes in the `Paragraph`'s `children` rather than a `TextRun`'s:
+
+```ts
+const paragraph = new Paragraph({
+    children: [new TextRun("End of first column"), new ColumnBreak()],
 });
 ```

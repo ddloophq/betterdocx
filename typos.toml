@@ -1,0 +1,158 @@
+[files]
+extend-exclude = [
+    "docs/api/**",
+    "library/ooxml-schemas/**",
+    "library/demo/assets/**",
+    "**/*.docx",
+    "build/**",
+    "dist/**",
+    "coverage/**",
+    "bun.lock",
+]
+
+[default]
+extend-ignore-re = [
+    # Inline / block spell-check suppressions (typos + legacy cspell comments)
+    "(?Rm)^.*(#|//|/\\*|\\{/)\\s*(spellchecker:|cspell:)(disable-line|disable-next-line)",
+    "(?s)(#|//|/\\*|\\{/)\\s*(spellchecker:|cspell):(disable|off).*?(#|//|/\\*|\\{/)\\s*(spellchecker:|cspell):(enable|on)",
+    # OOXML namespaces, attributes, and long encoded values
+    "\"w:[^\"]+\"",
+    "\"s:[^\"]+\"",
+    "\"a:[^\"]+\"",
+    "\"pic:[^\"]+\"",
+    "\"xmlns:[^\"]+\"",
+    "\"vt:[^\"]+\"",
+    "[^\\s]{40,}",
+    "<xsd:[^>]+/>",
+    "[A-Z_]+ = \"[^\"]+\"",
+    "XmlAttributeComponent<\\{[^}]+}>",
+    "xmlKeys = \\{[^}]+}",
+    "\\.to\\.deep\\.equal\\(\\{[^)]+}\\)",
+    "\\.to\\.include\\.members\\(\\[[^\\]]+\\]\\)",
+    "new [a-zA-Z]+\\(\\{[^£]+}\\)",
+    "<element name=\"[a-z]+\"",
+    "<attribute name=\"[a-z]+\"",
+    "key: \"[^\"]+\"",
+    # xsd:dateTime format comment in values.ts
+    "CCYY-MM-DDThh:mm:ss",
+]
+extend-ignore-identifiers-re = [
+    # Short OOXML-style tokens
+    "^[a-zA-Z]{1,4}$",
+]
+
+[default.extend-words]
+# Tooling / project
+llms = "llms"
+oxfmt = "oxfmt"
+oxlint = "oxlint"
+oxlintrc = "oxlintrc"
+tsdown = "tsdown"
+rolldown = "rolldown"
+publint = "publint"
+unstub = "unstub"
+betterdocx = "betterdocx"
+fumadocs = "fumadocs"
+fuma = "fuma"
+docsify = "docsify"
+execa = "execa"
+# OOXML / DOCX domain
+ooxml = "ooxml"
+twip = "twip"
+twips = "twips"
+xmlify = "xmlify"
+xmlified = "xmlified"
+Xmlifyed = "Xmlifyed"
+Xmlable = "Xmlable"
+apos = "apos"
+asvg = "asvg"
+hlink = "hlink"
+folHlink = "folHlink"
+phClr = "phClr"
+dcmitype = "dcmitype"
+dcterms = "dcterms"
+odttf = "odttf"
+panose = "panose"
+rsid = "rsid"
+sdtdh = "sdtdh"
+NUMPAGES = "NUMPAGES"
+ondata = "ondata"
+onfile = "onfile"
+# Libraries / names
+jszip = "jszip"
+docxjs = "docxjs"
+dolanmiu = "dolanmiu"
+Orama = "Orama"
+Scira = "Scira"
+# Misc project terms
+Abjad = "Abjad"
+aink = "aink"
+aiueo = "aiueo"
+ATLEAST = "ATLEAST"
+chosung = "chosung"
+clippy = "clippy"
+customise = "customise"
+datas = "datas"
+ddloop = "ddloop"
+dolan = "dolan"
+falsey = "falsey"
+horz = "horz"
+iife = "iife"
+Initializable = "Initializable"
+iroha = "iroha"
+JOHAB = "JOHAB"
+jsonify = "jsonify"
+# Demo / lorem ipsum content
+varius = "varius"
+ridiculus = "ridiculus"
+facilisi = "facilisi"
+monumentos = "monumentos"
+fondamental = "fondamental"
+fonction = "fonction"
+provid = "provid"
+# Intentional bad-commit-message examples in docs
+Unesesary = "Unesesary"
+coment = "coment"
+# Fractions in docs ("20ths of a point", "240ths of a line")
+ths = "ths"
+
+[default.extend-identifiers]
+# API names that mirror OOXML identifiers (intentional spelling)
+mediaDatas = "mediaDatas"
+Datas = "Datas"
+datas = "datas"
+Seperator = "Seperator"
+seperator = "seperator"
+SEPERATOR = "SEPERATOR"
+CONTINUATION_SEPERATOR = "CONTINUATION_SEPERATOR"
+ContinuationSeperator = "ContinuationSeperator"
+ContinuationSeperatorRun = "ContinuationSeperatorRun"
+SeperatorRun = "SeperatorRun"
+Extention = "Extention"
+extentions = "extentions"
+createExtentionList = "createExtentionList"
+Precent = "Precent"
+preced = "preced"
+precedSib = "precedSib"
+declaritive = "declaritive"
+Declaritive = "Declaritive"
+sequencial = "sequencial"
+compatability = "compatability"
+compatabilityModeVersion = "compatabilityModeVersion"
+Memeber = "Memeber"
+Colum = "Colum"
+verticies = "verticies"
+hexidecimal = "hexidecimal"
+Edn = "Edn"
+Ser = "Ser"
+BA = "BA"
+nd = "nd"
+fot = "fot"
+rhe = "rhe"
+teh = "teh"
+Nam = "Nam"
+nam = "nam"
+ser = "ser"
+
+# cspell flagWords — keep rejecting these
+hte = ""

@@ -2,10 +2,10 @@ name: Default
 on:
     push:
         branches:
-            - master
+            - main
     pull_request:
         branches:
-            - master
+            - main
 
 jobs:
     test:
@@ -14,10 +14,14 @@ jobs:
         steps:
             - name: Checkout Repo
               uses: actions/checkout@v5
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version-file: .bun-version
             - name: Install Dependencies
-              run: npm ci --force
+              run: bun install --frozen-lockfile
             - name: Test
-              run: npm run test:ci
+              run: bun run test:ci
             - name: Upload coverage reports to Codecov
               uses: codecov/codecov-action@v5
               with:
@@ -28,27 +32,42 @@ jobs:
         steps:
             - name: Checkout Repo
               uses: actions/checkout@v5
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version-file: .bun-version
             - name: Install Dependencies
-              run: npm ci --force
+              run: bun install --frozen-lockfile
             - name: Lint
-              run: npm run lint
-    prettier:
-        name: Prettier
+              run: bun run lint
+            - name: Format Check
+              run: bun run format:check
+    build:
+        name: Packed consumers (Node ${{ matrix.node-version }})
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [24]
+        steps:
+            - name: Checkout Repo
+              uses: actions/checkout@v5
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version-file: .bun-version
+            - name: Install Dependencies
+              run: bun install --frozen-lockfile
+            - name: Build
+              run: bun run test:package
+    spellcheck:
+        name: Spellcheck
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Repo
               uses: actions/checkout@v5
-            - name: Install Dependencies
-              run: npm ci --force
-            - name: Prettier
-              run: npm run prettier
-    cspell:
-        name: CSpell
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Repo
-              uses: actions/checkout@v5
-            - name: Install Dependencies
-              run: npm ci --force
-            - name: CSpell
-              run: npm run cspell
+            - name: Check spelling
+              uses: crate-ci/typos@v1

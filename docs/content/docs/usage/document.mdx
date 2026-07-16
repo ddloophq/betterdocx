@@ -24,30 +24,30 @@ const doc = new docx.Document({
 
 ### Full list of options:
 
-| Property                   | Type                                                     | Notes    |
-| -------------------------- | -------------------------------------------------------- | -------- |
-| sections                   | `ISectionOptions[]`                                      | Optional |
-| title                      | `string`                                                 | Optional |
-| subject                    | `string`                                                 | Optional |
-| creator                    | `string`                                                 | Optional |
-| keywords                   | `string`                                                 | Optional |
-| description                | `string`                                                 | Optional |
-| lastModifiedBy             | `string`                                                 | Optional |
-| revision                   | `number`                                                 | Optional |
-| externalStyles             | `string`                                                 | Optional |
-| styles                     | `IStylesOptions`                                         | Optional |
-| numbering                  | `INumberingOptions`                                      | Optional |
-| comments                   | `ICommentsOptions`                                       | Optional |
-| footnotes                  | `Record<string, { children: Paragraph[] }>`              | Optional |
-| background                 | `IDocumentBackgroundOptions`                             | Optional |
-| features                   | `{ trackRevisions?: boolean;  updateFields?: boolean; }` | Optional |
-| compatabilityModeVersion   | `number`                                                 | Optional |
-| compatibility              | `ICompatibilityOptions`                                  | Optional |
-| customProperties           | ` ICustomPropertyOptions`[]                              | Optional |
-| evenAndOddHeaderAndFooters | `boolean`                                                | Optional |
-| defaultTabStop             | `number`                                                 | Optional |
-| fonts                      | ` FontOptions[]`                                         | Optional |
-| hyphenation                | `IHyphenationOptions`                                    | Optional |
+| Property                   | Type                                                     | Notes                                                                                           |
+| -------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| sections                   | `ISectionOptions[]`                                      | Optional                                                                                        |
+| title                      | `string`                                                 | Optional                                                                                        |
+| subject                    | `string`                                                 | Optional                                                                                        |
+| creator                    | `string`                                                 | Optional                                                                                        |
+| keywords                   | `string`                                                 | Optional                                                                                        |
+| description                | `string`                                                 | Optional                                                                                        |
+| lastModifiedBy             | `string`                                                 | Optional                                                                                        |
+| revision                   | `number`                                                 | Optional                                                                                        |
+| externalStyles             | `string`                                                 | Optional                                                                                        |
+| styles                     | `IStylesOptions`                                         | Optional                                                                                        |
+| numbering                  | `INumberingOptions`                                      | Optional                                                                                        |
+| comments                   | `ICommentsOptions`                                       | Optional                                                                                        |
+| footnotes                  | `Record<string, { children: Paragraph[] }>`              | Optional                                                                                        |
+| background                 | `IDocumentBackgroundOptions`                             | Optional. Page background color — see [below](#change-background-color-of-document)             |
+| features                   | `{ trackRevisions?: boolean;  updateFields?: boolean; }` | Optional. See [Features](#features)                                                             |
+| compatabilityModeVersion   | `number`                                                 | Optional                                                                                        |
+| compatibility              | `ICompatibilityOptions`                                  | Optional                                                                                        |
+| customProperties           | ` ICustomPropertyOptions`[]                              | Optional. Arbitrary name/value document properties — see [Custom Properties](custom-properties) |
+| evenAndOddHeaderAndFooters | `boolean`                                                | Optional                                                                                        |
+| defaultTabStop             | `number`                                                 | Optional                                                                                        |
+| fonts                      | ` FontOptions[]`                                         | Optional. Embed custom font files in the document — see [Fonts](fonts)                          |
+| hyphenation                | `IHyphenationOptions`                                    | Optional. See [Hyphenation](#hyphenation)                                                       |
 
 ### Change background color of Document
 
@@ -61,7 +61,54 @@ const doc = new docx.Document({
 });
 ```
 
+Instead of a fixed hex color, you can reference a theme color, optionally darkened or lightened:
+
+| Property   | Type     | Notes                                                                  |
+| ---------- | -------- | ---------------------------------------------------------------------- |
+| color      | `string` | Optional. Hex color value, e.g. `"C45911"`                             |
+| themeColor | `string` | Optional. Theme color name, e.g. `"accent1"`, `"background2"`          |
+| themeShade | `string` | Optional. Shade applied to the theme color, as a hex byte, e.g. `"BF"` |
+| themeTint  | `string` | Optional. Tint applied to the theme color, as a hex byte, e.g. `"99"`  |
+
 You can mix and match whatever properties you want, or provide no properties.
+
+### Features
+
+The `features` option toggles document-wide behaviors:
+
+- `trackRevisions` — opens the document with the 'Track Changes' feature enabled, so any edits made in Word are recorded as revisions.
+- `updateFields` — instructs Word to update all fields when the document is opened. This is required for a [Table of Contents](table-of-contents) to be populated, since fields are calculated by the word processor rather than at export time. Word will show a prompt asking the user to allow the update.
+
+```ts
+const doc = new docx.Document({
+    features: {
+        updateFields: true,
+    },
+    sections: [],
+});
+```
+
+### Hyphenation
+
+The `hyphenation` option controls automatic hyphenation across the document:
+
+| Property               | Type      | Notes                                                                             |
+| ---------------------- | --------- | --------------------------------------------------------------------------------- |
+| autoHyphenation        | `boolean` | Optional. Automatically hyphenate words at the end of lines                       |
+| hyphenationZone        | `number`  | Optional. Hyphenation zone, in twips (emitted as `w:hyphenationZone`)             |
+| consecutiveHyphenLimit | `number`  | Optional. Maximum number of consecutive lines that can end with a hyphenated word |
+| doNotHyphenateCaps     | `boolean` | Optional. Skip hyphenation for words in all capital letters                       |
+
+```ts
+const doc = new docx.Document({
+    hyphenation: {
+        autoHyphenation: true,
+        consecutiveHyphenLimit: 2,
+        doNotHyphenateCaps: true,
+    },
+    sections: [],
+});
+```
 
 ### Units for positioning
 

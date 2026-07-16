@@ -14,41 +14,335 @@ This creates a simple section in a document with one paragraph inside:
 
 ```ts
 const doc = new Document({
-    sections: [{
-        children: [
-            new Paragraph({
-                children: [new TextRun("Hello World")],
-            }),
-        ],
-    }];
+    sections: [
+        {
+            children: [
+                new Paragraph({
+                    children: [new TextRun("Hello World")],
+                }),
+            ],
+        },
+    ],
 });
 ```
 
 ## Properties
 
-You can specify additional properties to the section, by providing a `properties` attribute.
+You can specify additional properties for the section by providing a `properties` attribute. All properties are optional:
 
-### Section Type
+| Property      | Type                                                    | Notes                                        |
+| ------------- | ------------------------------------------------------- | -------------------------------------------- |
+| page          | `{ size, margin, pageNumbers, borders, textDirection }` | Page-level settings, detailed below          |
+| type          | `SectionType`                                           | How the section starts                       |
+| column        | `IColumnsAttributes`                                    | Multi-column layout                          |
+| lineNumbers   | `ILineNumberAttributes`                                 | Line numbering in the margin                 |
+| verticalAlign | `SectionVerticalAlign`                                  | Vertical alignment of content on the page    |
+| grid          | `Partial<IDocGridAttributesProperties>`                 | Document grid (East Asian typography)        |
+| titlePage     | `boolean`                                               | Enables a different first-page header/footer |
 
-Setting the section type determines how the contents of the section will be placed relative to the previous section. E.g., There are five different types:
+Measurements accept either a number in twips (twentieths of a point) or a universal measure string with one of the units `mm`, `cm`, `in`, `pt`, `pc`, `pi` — for example `"8.5in"` or `"25mm"`.
 
--   `CONTINUOUS`
--   `EVEN_PAGE`
--   `NEXT_COLUMN`
--   `NEXT_PAGE`
--   `ODD_PAGE`
+### Page Size
+
+`page.size` sets the paper dimensions and orientation. The default is A4 portrait (11906 × 16838 twips).
+
+| Property    | Type                                 | Notes                                                       |
+| ----------- | ------------------------------------ | ----------------------------------------------------------- |
+| width       | `number \| PositiveUniversalMeasure` | Optional. Page width in twips or a measure string           |
+| height      | `number \| PositiveUniversalMeasure` | Optional. Page height in twips or a measure string          |
+| orientation | `PageOrientation`                    | Optional. `PORTRAIT` (default) or `LANDSCAPE`               |
+| code        | `number`                             | Optional. Printer-specific paper code, passed through as-is |
+
+When `orientation` is `LANDSCAPE`, the width and height values are swapped automatically, so you can keep specifying them in portrait terms:
 
 ```ts
 const doc = new Document({
-    sections: [{
-        properties: {
-            type: SectionType.CONTINUOUS,
-        }
-        children: [
-            new Paragraph({
-                children: [new TextRun("Hello World")],
-            }),
-        ],
-    }];
+    sections: [
+        {
+            properties: {
+                page: {
+                    size: {
+                        width: "8.5in",
+                        height: "11in",
+                        orientation: PageOrientation.LANDSCAPE,
+                    },
+                },
+            },
+            children: [],
+        },
+    ],
+});
+```
+
+### Page Margins
+
+`page.margin` sets the distances between the page edge and the content. All values default to 1440 twips (1 inch), except `header` and `footer` (708 twips) and `gutter` (0).
+
+| Property | Type                                 | Notes                                       |
+| -------- | ------------------------------------ | ------------------------------------------- |
+| top      | `number \| UniversalMeasure`         | Optional. May be negative                   |
+| right    | `number \| PositiveUniversalMeasure` | Optional                                    |
+| bottom   | `number \| UniversalMeasure`         | Optional. May be negative                   |
+| left     | `number \| PositiveUniversalMeasure` | Optional                                    |
+| header   | `number \| PositiveUniversalMeasure` | Optional. Distance from page edge to header |
+| footer   | `number \| PositiveUniversalMeasure` | Optional. Distance from page edge to footer |
+| gutter   | `number \| PositiveUniversalMeasure` | Optional. Extra space reserved for binding  |
+
+```ts
+const doc = new Document({
+    sections: [
+        {
+            properties: {
+                page: {
+                    margin: {
+                        top: "2cm",
+                        right: 1440,
+                        bottom: "2cm",
+                        left: 1440,
+                    },
+                },
+            },
+            children: [],
+        },
+    ],
+});
+```
+
+### Page Numbering
+
+`page.pageNumbers` controls how page numbers behave for the section. Use it together with `PageNumber` fields in headers or footers — see [Page Numbers](page-numbers).
+
+| Property   | Type                  | Notes                                                                                                            |
+| ---------- | --------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| start      | `number`              | Optional. Page number for the first page of the section                                                          |
+| formatType | `NumberFormat`        | Optional. e.g. `DECIMAL`, `LOWER_ROMAN`, `UPPER_ROMAN`, `LOWER_LETTER`, `UPPER_LETTER`, `ORDINAL`, and many more |
+| separator  | `PageNumberSeparator` | Optional. Chapter separator: `HYPHEN`, `PERIOD`, `COLON`, `EM_DASH`, `EN_DASH`                                   |
+
+```ts
+const doc = new Document({
+    sections: [
+        {
+            properties: {
+                page: {
+                    pageNumbers: {
+                        start: 1,
+                        formatType: NumberFormat.LOWER_ROMAN,
+                        separator: PageNumberSeparator.HYPHEN,
+                    },
+                },
+            },
+            children: [],
+        },
+    ],
+});
+```
+
+A common use is restarting page numbering per section: give each section `pageNumbers: { start: 1 }` and put `PageNumber.CURRENT` in its footer.
+
+### Page Borders
+
+`page.borders` draws borders around the page. `pageBorders` holds section-wide settings, and each side is configured with the same `IBorderOptions` used elsewhere in the library (`style`, `color`, `size` in eighths of a point, `space` in points).
+
+| Property         | Type                                 | Notes    |
+| ---------------- | ------------------------------------ | -------- |
+| pageBorders      | `{ display?, offsetFrom?, zOrder? }` | Optional |
+| pageBorderTop    | `IBorderOptions`                     | Optional |
+| pageBorderRight  | `IBorderOptions`                     | Optional |
+| pageBorderBottom | `IBorderOptions`                     | Optional |
+| pageBorderLeft   | `IBorderOptions`                     | Optional |
+
+- `display`: `PageBorderDisplay.ALL_PAGES`, `FIRST_PAGE` or `NOT_FIRST_PAGE`
+- `offsetFrom`: `PageBorderOffsetFrom.PAGE` or `TEXT`
+- `zOrder`: `PageBorderZOrder.FRONT` or `BACK`
+
+```ts
+const doc = new Document({
+    sections: [
+        {
+            properties: {
+                page: {
+                    borders: {
+                        pageBorders: {
+                            display: PageBorderDisplay.FIRST_PAGE,
+                            offsetFrom: PageBorderOffsetFrom.PAGE,
+                            zOrder: PageBorderZOrder.BACK,
+                        },
+                        pageBorderTop: {
+                            style: BorderStyle.DOUBLE,
+                            size: 12,
+                            color: "auto",
+                        },
+                    },
+                },
+            },
+            children: [],
+        },
+    ],
+});
+```
+
+### Text Direction
+
+`page.textDirection` sets the flow of text on the page:
+
+- `PageTextDirectionType.LEFT_TO_RIGHT_TOP_TO_BOTTOM` (default behavior)
+- `PageTextDirectionType.TOP_TO_BOTTOM_RIGHT_TO_LEFT` (vertical text, e.g. East Asian layouts)
+
+```ts
+const doc = new Document({
+    sections: [
+        {
+            properties: {
+                page: {
+                    textDirection: PageTextDirectionType.TOP_TO_BOTTOM_RIGHT_TO_LEFT,
+                },
+            },
+            children: [],
+        },
+    ],
+});
+```
+
+### Columns
+
+The `column` property lays the section content out in multiple columns:
+
+| Property   | Type                                 | Notes                                                               |
+| ---------- | ------------------------------------ | ------------------------------------------------------------------- |
+| count      | `number`                             | Optional. Number of columns                                         |
+| space      | `number \| PositiveUniversalMeasure` | Optional. Space between columns                                     |
+| separate   | `boolean`                            | Optional. Draw a vertical line between columns                      |
+| equalWidth | `boolean`                            | Optional. All columns share the width evenly                        |
+| children   | `Column[]`                           | Optional. Per-column widths; only used when `equalWidth` is not set |
+
+```ts
+const doc = new Document({
+    sections: [
+        {
+            properties: {
+                column: {
+                    count: 2,
+                    space: 708,
+                    separate: true,
+                    equalWidth: true,
+                },
+            },
+            children: [],
+        },
+    ],
+});
+```
+
+For unequal columns, omit `equalWidth` and provide `Column` instances with explicit widths (`space` here is the gap after that column):
+
+```ts
+column: {
+    count: 2,
+    children: [
+        new Column({ width: 5760, space: 720 }),
+        new Column({ width: 2880 }),
+    ],
+},
+```
+
+### Line Numbers
+
+`lineNumbers` displays line numbers in the margin of the section:
+
+| Property | Type                                 | Notes                                                           |
+| -------- | ------------------------------------ | --------------------------------------------------------------- |
+| countBy  | `number`                             | Optional. Only show numbers on every nth line                   |
+| start    | `number`                             | Optional. Starting value when numbering (re)starts              |
+| restart  | `LineNumberRestartFormat`            | Optional. `NEW_PAGE` (default), `NEW_SECTION` or `CONTINUOUS`   |
+| distance | `number \| PositiveUniversalMeasure` | Optional. Distance between the text margin and the line numbers |
+
+```ts
+const doc = new Document({
+    sections: [
+        {
+            properties: {
+                lineNumbers: {
+                    countBy: 5,
+                    restart: LineNumberRestartFormat.CONTINUOUS,
+                    distance: 720,
+                },
+            },
+            children: [/* paragraphs */],
+        },
+    ],
+});
+```
+
+### Vertical Alignment
+
+`verticalAlign` positions the section content vertically on the page. Values come from `VerticalAlignSection`: `TOP`, `CENTER`, `BOTTOM` or `BOTH` (justified).
+
+```ts
+const doc = new Document({
+    sections: [
+        {
+            properties: {
+                verticalAlign: VerticalAlignSection.CENTER,
+            },
+            children: [/* a title page, for example */],
+        },
+    ],
+});
+```
+
+### Document Grid
+
+`grid` configures the document grid used for precise layout of full-width East Asian characters:
+
+| Property  | Type               | Notes                                                              |
+| --------- | ------------------ | ------------------------------------------------------------------ |
+| linePitch | `number`           | Optional. Line pitch in twips (default `360`)                      |
+| charSpace | `number`           | Optional. Character pitch value                                    |
+| type      | `DocumentGridType` | Optional. `DEFAULT`, `LINES`, `LINES_AND_CHARS` or `SNAP_TO_CHARS` |
+
+```ts
+const doc = new Document({
+    sections: [
+        {
+            properties: {
+                grid: {
+                    linePitch: 360,
+                    type: DocumentGridType.LINES,
+                },
+            },
+            children: [],
+        },
+    ],
+});
+```
+
+### Title Page
+
+Set `titlePage: true` to enable the 'Different First Page' option, which lets you supply a separate `first` header and footer for the section. See [Headers and Footers](headers-and-footers) for details.
+
+### Section Type
+
+Setting the section type determines how the contents of the section will be placed relative to the previous section. There are five different types:
+
+- `SectionType.CONTINUOUS` — begins on the same page, directly after the previous section
+- `SectionType.NEXT_PAGE` — begins on the next page (the default behavior in Word)
+- `SectionType.NEXT_COLUMN` — begins in the next column; useful together with the [`column`](#columns) property
+- `SectionType.EVEN_PAGE` — begins on the next even-numbered page
+- `SectionType.ODD_PAGE` — begins on the next odd-numbered page
+
+```ts
+const doc = new Document({
+    sections: [
+        {
+            properties: {
+                type: SectionType.CONTINUOUS,
+            },
+            children: [
+                new Paragraph({
+                    children: [new TextRun("Hello World")],
+                }),
+            ],
+        },
+    ],
 });
 ```

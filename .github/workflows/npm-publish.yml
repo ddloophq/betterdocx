@@ -1,4 +1,4 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# This workflow verifies and publishes the package to npm (with provenance) when a release is created
 # For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
 
 name: Node.js Package
@@ -8,39 +8,44 @@ on:
         types: [created]
 
 jobs:
-    test:
+    verify:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v5
-            - uses: actions/setup-node@v6
+            - uses: oven-sh/setup-bun@v2
               with:
-                  node-version: "24.x"
-            - run: npm ci --force
-            - run: npm run cspell
-            - run: npm run prettier
-            - run: npm run lint
-            - run: npm run test:ci
-
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v5
-            - uses: actions/setup-node@v6
-              with:
-                  node-version: "24.x"
-            - run: npm ci --force
-            - run: npm run build
+                  bun-version-file: .bun-version
+            - run: bun install --frozen-lockfile
+            - uses: crate-ci/typos@v1
+            - run: bun run lint
+            - run: bun run format:check
+            - run: bun run test:ci
+            - run: bun run test:package
+            - name: Install xmllint
+              run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+            - name: Validate demo packages and WML parts
+              working-directory: library
+              run: bun run test:demos
 
     publish-npm:
-        needs: [test, build]
+        needs: [verify]
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write
         steps:
             - uses: actions/checkout@v5
+            - uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version-file: .bun-version
+            # npm is still used for publishing to get --provenance support
             - uses: actions/setup-node@v6
               with:
-                  node-version: "24.x"
+                  node-version-file: .nvmrc
                   registry-url: https://registry.npmjs.org/
-            - run: npm ci --force
-            - run: npm publish
+            - run: bun install --frozen-lockfile
+            - run: bun run build
+            - run: npm publish --provenance --access public
+              working-directory: library
               env:
-                  NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+                  NODE_AUTH_TOKEN: ${{ secrets.npm_token }}

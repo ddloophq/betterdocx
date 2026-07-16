@@ -1,2 +1,1 @@
-export * from './brand-icons';
-
+export * from "./brand-icons";

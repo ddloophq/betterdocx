@@ -2,10 +2,10 @@ name: Demos
 on:
     push:
         branches:
-            - master
+            - main
     pull_request:
         branches:
-            - master
+            - main
 
 jobs:
     demos:
@@ -16,5 +16,6 @@ jobs:
             - uses: "./.github/actions/install-and-build"
             - name: Install xmllint
               run: sudo apt-get update && sudo apt-get install -y libxml2-utils
-            - name: Run and validate all demos
-              run: bash scripts/run-demos.sh
+            - name: Validate demo packages and WML parts
+              working-directory: library
+              run: bun run test:demos

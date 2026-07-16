@@ -11,12 +11,23 @@ npm install betterdocx
 
 Then you can `import` as usual:
 
-
 ```ts
 import * as docx from "betterdocx";
 // or
 import { ... } from "betterdocx";
 ```
+
+The root entry contains the complete backwards-compatible API. Purpose-specific
+subpaths are also available:
+
+| Entry                 | Use for                                                        |
+| --------------------- | -------------------------------------------------------------- |
+| `betterdocx/core`     | Building and packing documents without template patching code  |
+| `betterdocx/patcher`  | Patching templates, detecting placeholders, and reading styles |
+| `betterdocx/advanced` | Custom low-level OOXML components and formatter extensions     |
+
+For example, a generation-only application may import `Document`, `Packer`, and its
+document components from `betterdocx/core`. Existing root imports remain supported.
 
 ## Basic Usage
 
@@ -50,17 +61,14 @@ const doc = new Document({
 });
 
 // Used to export the file into a .docx file
-Packer.toBuffer(doc).then((buffer) => {
-    fs.writeFileSync("My Document.docx", buffer);
+Packer.toUint8Array(doc).then((bytes) => {
+    fs.writeFileSync("My Document.docx", bytes);
 });
 
 // Done! A file called 'My Document.docx' will be in your file system.
 ```
 
-
 ![clippy the assistant](clippy.png)
-
-
 
 ## A Fork
 

@@ -1,0 +1,102 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import {
+    bookmarkUniqueNumericIdGen,
+    convertInchesToTwip,
+    convertMillimetersToTwip,
+    docPropertiesUniqueNumericIdGen,
+    hashedId,
+    uniqueId,
+    uniqueNumericIdCreator,
+} from "./convenience-functions";
+
+describe("Utility", () => {
+    describe("#convertMillimetersToTwip", () => {
+        it("should convert millimeters to TWIP", () => {
+            expect(convertMillimetersToTwip(1000)).to.equal(56692);
+        });
+    });
+
+    describe("#convertInchesToTwip", () => {
+        it("should convert inches to TWIP", () => {
+            expect(convertInchesToTwip(1)).to.equal(1440);
+            expect(convertInchesToTwip(0.5)).to.equal(720);
+            expect(convertInchesToTwip(0.25)).to.equal(360);
+        });
+    });
+
+    describe("#uniqueNumericIdCreator", () => {
+        it("should generate a unique incrementing ID", () => {
+            const uniqueNumericId = uniqueNumericIdCreator();
+            expect(uniqueNumericId()).to.not.be.undefined;
+        });
+    });
+
+    describe("#docPropertiesUniqueNumericIdGen", () => {
+        it("should generate a unique incrementing ID", () => {
+            const uniqueNumericId = docPropertiesUniqueNumericIdGen();
+            expect(uniqueNumericId()).to.equal(1);
+            expect(uniqueNumericId()).to.equal(2);
+        });
+    });
+
+    describe("#bookmarkUniqueNumericIdGen", () => {
+        it("should generate a unique incrementing ID", () => {
+            const uniqueNumericId = bookmarkUniqueNumericIdGen();
+            expect(uniqueNumericId()).to.equal(1);
+            expect(uniqueNumericId()).to.equal(2);
+        });
+    });
+
+    describe("#uniqueId", () => {
+        afterEach(() => {
+            vi.unstubAllGlobals();
+        });
+
+        it("should generate a unique pseudorandom ID", () => {
+            expect(uniqueId()).to.not.be.empty;
+        });
+
+        it("should generate a v4 UUID when crypto.randomUUID is unavailable", () => {
+            vi.stubGlobal("crypto", {
+                getRandomValues: crypto.getRandomValues.bind(crypto),
+            });
+
+            expect(uniqueId()).to.match(
+                /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+            );
+        });
+
+        it("should generate a v4 UUID when Web Crypto is unavailable", () => {
+            vi.stubGlobal("crypto", undefined);
+
+            expect(uniqueId()).to.match(
+                /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+            );
+        });
+    });
+
+    describe("#hashedId", () => {
+        it("should generate a deterministic hex string", () => {
+            expect(hashedId("")).to.equal("811c9dc5-0");
+        });
+
+        it("should produce different hashes for different inputs", () => {
+            expect(hashedId("A")).to.not.equal(hashedId("B"));
+        });
+
+        it("should work with string, Uint8Array, Buffer and ArrayBuffer", () => {
+            const stringInput = "DATA";
+            const uint8ArrayInput = new Uint8Array(new TextEncoder().encode(stringInput));
+            const bufferInput = Buffer.from(uint8ArrayInput);
+            const arrayBufferInput = uint8ArrayInput.buffer;
+
+            const expectedHash = "c407fae5-4";
+
+            expect(hashedId(stringInput)).to.equal(expectedHash);
+            expect(hashedId(uint8ArrayInput)).to.equal(expectedHash);
+            expect(hashedId(bufferInput)).to.equal(expectedHash);
+            expect(hashedId(arrayBufferInput)).to.equal(expectedHash);
+        });
+    });
+});

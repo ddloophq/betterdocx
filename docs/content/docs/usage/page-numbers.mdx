@@ -4,6 +4,9 @@ title: Page Numbers
 
 > This feature allows you to set page numbers on each page
 
+`PageNumber` values are explicit field objects. Plain strings are always rendered literally, so
+text such as `"CURRENT"`, `"TOTAL_PAGES"`, or `"SECTION"` is safe to use as ordinary content.
+
 > **Note:** This feature only works on Headers and Footers
 
 ```ts
@@ -11,15 +14,15 @@ new Paragraph({
     children: [
         new TextRun({
             children: ["Page #: ", PageNumber.CURRENT],
-        })
-    ]
-})
+        }),
+    ],
+});
 ```
 
 ## Current page number
 
 ```ts
-PageNumber.CURRENT
+PageNumber.CURRENT;
 ```
 
 For example:
@@ -29,15 +32,15 @@ new Paragraph({
     children: [
         new TextRun({
             children: ["Page Number ", PageNumber.CURRENT],
-        })
-    ]
-})
+        }),
+    ],
+});
 ```
 
 ## Total number of pages
 
 ```ts
-PageNumber.TOTAL_PAGES
+PageNumber.TOTAL_PAGES;
 ```
 
 For example:
@@ -47,11 +50,46 @@ new Paragraph({
     children: [
         new TextRun({
             children: ["Total Pages Number: ", PageNumber.TOTAL_PAGES],
-        })
-    ]
-})
+        }),
+    ],
+});
 ```
 
+## Total number of pages in the current section
+
+```ts
+PageNumber.TOTAL_PAGES_IN_SECTION;
+```
+
+Like `TOTAL_PAGES`, but only counts the pages of the current [Section](sections). For example:
+
+```ts
+new Paragraph({
+    children: [
+        new TextRun({
+            children: ["Pages in this chapter: ", PageNumber.TOTAL_PAGES_IN_SECTION],
+        }),
+    ],
+});
+```
+
+## Current section number
+
+```ts
+PageNumber.CURRENT_SECTION;
+```
+
+Inserts the number of the current [Section](sections). For example:
+
+```ts
+new Paragraph({
+    children: [
+        new TextRun({
+            children: ["Chapter ", PageNumber.CURRENT_SECTION],
+        }),
+    ],
+});
+```
 
 ## Both
 
@@ -68,12 +106,34 @@ new Paragraph({
 })
 ```
 
+## Starting value and number format
+
+The starting page number and the display format (decimal, roman numerals, etc.) are configured per section via the `page.pageNumbers` property — see [Sections](sections#page-numbering):
+
+```ts
+const doc = new Document({
+    sections: [
+        {
+            properties: {
+                page: {
+                    pageNumbers: {
+                        start: 1,
+                        formatType: NumberFormat.LOWER_ROMAN,
+                    },
+                },
+            },
+            children: [],
+        },
+    ],
+});
+```
+
 ## Examples
 
 ### Simple Example
 
 Adding page numbers to Header and Footer
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/39-page-numbers.ts ':include')
+[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/39-page-numbers.ts ":include")
 
 _Source: https://github.com/dolanmiu/docx/blob/master/demo/39-page-numbers.ts_

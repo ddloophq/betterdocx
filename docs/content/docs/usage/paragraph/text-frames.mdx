@@ -12,9 +12,15 @@ title: Text Frames
 
 To make a `Text Frame`, simply add the `frame` property on a paragraph. `Borders` can be applied to frame simply by adding the `border` attribute.
 
+Every frame needs a `type` discriminant, which determines how it is positioned:
+
+- `type: "absolute"` — the frame is placed at exact coordinates. Requires a `position: { x, y }` object (in twips, relative to the chosen anchors).
+- `type: "alignment"` — the frame is aligned relative to its anchors. Requires an `alignment: { x, y }` object.
+
 ```ts
 new Paragraph({
     frame: {
+        type: "absolute",
         position: {
             x: 1000,
             y: 3000,
@@ -25,34 +31,30 @@ new Paragraph({
             horizontal: FrameAnchorType.MARGIN,
             vertical: FrameAnchorType.MARGIN,
         },
-        alignment: {
-            x: HorizontalPositionAlign.CENTER,
-            y: VerticalPositionAlign.TOP,
-        },
     },
     border: {
         top: {
             color: "auto",
             space: 1,
-            value: "single",
+            style: "single",
             size: 6,
         },
         bottom: {
             color: "auto",
             space: 1,
-            value: "single",
+            style: "single",
             size: 6,
         },
         left: {
             color: "auto",
             space: 1,
-            value: "single",
+            style: "single",
             size: 6,
         },
         right: {
             color: "auto",
             space: 1,
-            value: "single",
+            style: "single",
             size: 6,
         },
     },
@@ -69,3 +71,76 @@ new Paragraph({
     ],
 });
 ```
+
+The same frame positioned by alignment instead of coordinates:
+
+```ts
+new Paragraph({
+    frame: {
+        type: "alignment",
+        alignment: {
+            x: HorizontalPositionAlign.CENTER,
+            y: VerticalPositionAlign.TOP,
+        },
+        width: 4000,
+        height: 1000,
+        anchor: {
+            horizontal: FrameAnchorType.MARGIN,
+            vertical: FrameAnchorType.MARGIN,
+        },
+    },
+    children: [new TextRun("Hello World")],
+});
+```
+
+## Options
+
+| Property   | Type                                                         | Mandatory?                 | Possible Values                                                                                          |
+| ---------- | ------------------------------------------------------------ | -------------------------- | -------------------------------------------------------------------------------------------------------- |
+| type       | `"absolute"` or `"alignment"`                                | Required                   |                                                                                                          |
+| position   | `{ x: number; y: number }`                                   | Required for `"absolute"`  | Coordinates in twips, relative to the anchors                                                            |
+| alignment  | `{ x: HorizontalPositionAlign; y: VerticalPositionAlign }`   | Required for `"alignment"` | `x`: `CENTER`, `INSIDE`, `LEFT`, `OUTSIDE`, `RIGHT`. `y`: `BOTTOM`, `CENTER`, `INSIDE`, `OUTSIDE`, `TOP` |
+| width      | `number`                                                     | Required                   | Width of the frame in twips                                                                              |
+| height     | `number`                                                     | Required                   | Height of the frame in twips                                                                             |
+| anchor     | `{ horizontal: FrameAnchorType; vertical: FrameAnchorType }` | Required                   | `MARGIN`, `PAGE`, `TEXT`                                                                                 |
+| rule       | `HeightRule`                                                 | Optional                   | `AUTO` (height grows with content, value ignored), `ATLEAST`, `EXACT`                                    |
+| wrap       | `FrameWrap`                                                  | Optional                   | `AROUND`, `AUTO`, `NONE`, `NOT_BESIDE`, `THROUGH`, `TIGHT`                                               |
+| space      | `{ horizontal: number; vertical: number }`                   | Optional                   | Padding between the frame and surrounding text, in twips                                                 |
+| anchorLock | `boolean`                                                    | Optional                   | Locks the frame's anchor to the current paragraph                                                        |
+| dropCap    | `DropCapType`                                                | Optional                   | `NONE`, `DROP` (inside the text margin), `MARGIN` (in the margin)                                        |
+| lines      | `number`                                                     | Optional                   | Number of lines a drop cap should span                                                                   |
+
+`FrameAnchorType` sets what the frame's position is measured against: the page `MARGIN`, the edge of the `PAGE`, or the `TEXT` column boundary. Horizontal and vertical anchors are set independently.
+
+## Drop Caps
+
+A drop cap is a large initial letter that spans multiple lines of text. Use `dropCap` with a `lines` count on a frame around the letter's paragraph:
+
+```ts
+new Paragraph({
+    frame: {
+        type: "alignment",
+        alignment: {
+            x: HorizontalPositionAlign.LEFT,
+            y: VerticalPositionAlign.TOP,
+        },
+        width: 1000,
+        height: 1000,
+        anchor: {
+            horizontal: FrameAnchorType.TEXT,
+            vertical: FrameAnchorType.TEXT,
+        },
+        dropCap: DropCapType.DROP,
+        lines: 3,
+        wrap: FrameWrap.AROUND,
+    },
+    children: [
+        new TextRun({
+            text: "H",
+            size: 72,
+        }),
+    ],
+});
+```
+
+`DropCapType.DROP` places the letter inside the text margin, while `DropCapType.MARGIN` places it in the margin next to the text.

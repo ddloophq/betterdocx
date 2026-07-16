@@ -40,7 +40,7 @@ const doc = new Document({
 
 Example showing basic header and footer
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/8-header-footer.ts ':include')
+[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/8-header-footer.ts ":include")
 
 _Source: https://github.com/dolanmiu/docx/blob/master/demo/8-header-footer.ts_
 
@@ -53,6 +53,41 @@ sections: [
         {
           properties: {
             titlePage: true,
+```
+
+## Tables in Headers and Footers
+
+The `children` of a `Header` or `Footer` accept `Table` elements as well as `Paragraph` elements. This is useful for laying out header content in columns, for example a logo on the left and the document title on the right:
+
+```ts
+const doc = new Document({
+    sections: [
+        {
+            headers: {
+                default: new Header({
+                    children: [
+                        new Table({
+                            width: { size: 100, type: WidthType.PERCENTAGE },
+                            rows: [
+                                new TableRow({
+                                    children: [
+                                        new TableCell({
+                                            children: [new Paragraph("My Company")],
+                                        }),
+                                        new TableCell({
+                                            children: [new Paragraph("Annual Report")],
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+            },
+            children: [],
+        },
+    ],
+});
 ```
 
 ## Multiple Headers and Footers

@@ -6,9 +6,9 @@ title: Tables
 
 ## Intro
 
--   `Tables` contain a list of `Rows`
--   `Rows` contain a list of `TableCells`
--   `TableCells` contain a list of `Paragraphs` and/or `Tables`. You can add `Tables` as tables can be nested inside each other
+- `Tables` contain a list of `Rows`
+- `Rows` contain a list of `TableCells`
+- `TableCells` contain a list of `Paragraphs` and/or `Tables`. You can add `Tables` as tables can be nested inside each other
 
 Create a simple table like so:
 
@@ -22,13 +22,36 @@ Then add the table in the `section`
 
 ```ts
 const doc = new Document({
-    sections: [{
-        children: [table],
-    }],
+    sections: [
+        {
+            children: [table],
+        },
+    ],
 });
 ```
 
 ## Table
+
+### Options
+
+Here is a list of options you can add to the `table`:
+
+| Property            | Type                            | Notes                                                                            |
+| ------------------- | ------------------------------- | -------------------------------------------------------------------------------- |
+| rows                | `Array<TableRow>`               | Required                                                                         |
+| width               | `ITableWidthProperties`         | Optional. Defaults to `{ size: 100 }` (auto)                                     |
+| columnWidths        | `Array<number>`                 | Optional. Width of each grid column in twips                                     |
+| margins             | `ITableCellMarginOptions`       | Optional. Default cell margins for the whole table                               |
+| indent              | `ITableWidthProperties`         | Optional                                                                         |
+| float               | `ITableFloatOptions`            | Optional. See [Floating tables](#floating-tables)                                |
+| layout              | `TableLayoutType`               | Optional. `AUTOFIT` or `FIXED`                                                   |
+| style               | `string`                        | Optional. Id of a table style defined in the document                            |
+| borders             | `ITableBordersOptions \| false` | Optional. See [Table borders](#table-borders)                                    |
+| alignment           | `AlignmentType`                 | Optional. Aligns the whole table on the page                                     |
+| visuallyRightToLeft | `boolean`                       | Optional                                                                         |
+| tableStyleOptions   | `ITableStyleOptions`            | Optional. See [Table Style Options](#table-style-options-conditional-formatting) |
+| cellSpacing         | `ITableCellSpacingProperties`   | Optional. Spacing between cells                                                  |
+| shading             | `IShadingAttributesProperties`  | Optional. Background shading for the whole table                                 |
 
 ### Set Width
 
@@ -54,6 +77,196 @@ const table = new Table({
     }
 });
 ```
+
+Depending on the `WidthType`, `size` accepts different values:
+
+- a plain `number` (twips for `WidthType.DXA`, converted to `"<number>%"` for `WidthType.PERCENTAGE`)
+- a percent string such as `"50%"`
+- a universal measure string such as `"1.5in"`, `"25mm"` or `"12pt"`
+
+```ts
+const table = new Table({
+    ...,
+    width: {
+        size: "50%",
+        type: WidthType.PERCENTAGE,
+    }
+});
+```
+
+### Column Widths
+
+`columnWidths` sets the width of each grid column in twips (twentieths of a point). Provide one entry per column. This is especially useful together with `TableLayoutType.FIXED`:
+
+```ts
+const table = new Table({
+    ...,
+    columnWidths: [3000, 3000, 3000], // three columns, 3000 twips each
+    layout: TableLayoutType.FIXED,
+});
+```
+
+If omitted, a default grid is generated with one column per grid column found in the rows.
+
+### Layout
+
+`layout` selects the algorithm Word uses to lay out the table:
+
+- `TableLayoutType.AUTOFIT` — columns expand to fit their content
+- `TableLayoutType.FIXED` — columns keep the widths from the table grid
+
+```ts
+const table = new Table({
+    ...,
+    layout: TableLayoutType.FIXED,
+});
+```
+
+### Alignment
+
+Aligns the whole table on the page using the same `AlignmentType` used for paragraphs:
+
+```ts
+const table = new Table({
+    ...,
+    alignment: AlignmentType.CENTER,
+});
+```
+
+### Table-wide Cell Margins
+
+`margins` sets the default cell margins for every cell in the table. Values are in the unit given by `marginUnitType` (defaults to `WidthType.DXA`, i.e. twips):
+
+```ts
+const table = new Table({
+    ...,
+    margins: {
+        marginUnitType: WidthType.DXA,
+        top: 100,
+        bottom: 100,
+        left: 150,
+        right: 150,
+    },
+});
+```
+
+Individual cells can override these with their own `margins` option.
+
+### Cell Spacing
+
+`cellSpacing` adds spacing between the cells of the table:
+
+```ts
+const table = new Table({
+    ...,
+    cellSpacing: {
+        value: 100,
+        type: CellSpacingType.DXA, // the default; CellSpacingType.NIL removes spacing
+    },
+});
+```
+
+Cell spacing can also be set per row — see the [table row options](#options-1).
+
+### Style
+
+`style` references a table style by its id. This is useful when working with an existing template (e.g. via `externalStyles`) that defines table styles such as Word's built-in `"TableGrid"`:
+
+```ts
+const table = new Table({
+    ...,
+    style: "TableGrid",
+});
+```
+
+### Table Borders
+
+Table-level borders are set with the `borders` option. In addition to the four outer sides, tables support `insideHorizontal` and `insideVertical` for the lines between cells:
+
+```ts
+const table = new Table({
+    ...,
+    borders: {
+        top: { style: BorderStyle.DOUBLE, size: 6, color: "ff0000" },
+        bottom: { style: BorderStyle.DOUBLE, size: 6, color: "ff0000" },
+        left: { style: BorderStyle.SINGLE, size: 4, color: "auto" },
+        right: { style: BorderStyle.SINGLE, size: 4, color: "auto" },
+        insideHorizontal: { style: BorderStyle.DASHED, size: 2, color: "999999" },
+        insideVertical: { style: BorderStyle.DASHED, size: 2, color: "999999" },
+    },
+});
+```
+
+**Note**: Any side you leave out (including when `borders` is omitted entirely) falls back to a default single border (`BorderStyle.SINGLE`, size 4, color `"auto"`). To create a borderless table, use the `TableBorders.NONE` preset, which sets all six sides to `BorderStyle.NONE`:
+
+```ts
+const table = new Table({
+    ...,
+    borders: TableBorders.NONE,
+});
+```
+
+#### Inheriting borders from a table style
+
+Direct borders take precedence over the table style referenced by `style` — and that includes `BorderStyle.NONE`, which is still a direct border, just an invisible one. So neither omitting sides nor `TableBorders.NONE` will let a style's own borders show through.
+
+To emit no `tblBorders` at all and let the `style` own the borders, pass `borders: false`:
+
+```ts
+const table = new Table({
+    ...,
+    style: "TableGrid",
+    borders: false,
+});
+```
+
+<Callout type="info">
+    `borders: false` and `TableBorders.NONE` are not the same thing. `TableBorders.NONE` writes six
+    explicit `none` borders, which **override** the style and give you a borderless table. `borders:
+    false` writes nothing, letting whatever the style defines apply.
+</Callout>
+
+### Floating Tables
+
+By default a table is placed inline with the surrounding text. The `float` option turns it into a floating table that is positioned freely on the page, with text flowing around it.
+
+```ts
+const table = new Table({
+    rows: [...],
+    float: {
+        horizontalAnchor: TableAnchorType.MARGIN,
+        verticalAnchor: TableAnchorType.MARGIN,
+        relativeHorizontalPosition: RelativeHorizontalPosition.RIGHT,
+        relativeVerticalPosition: RelativeVerticalPosition.BOTTOM,
+        overlap: OverlapType.NEVER,
+        leftFromText: 1000,
+        rightFromText: 2000,
+        topFromText: 1500,
+        bottomFromText: 30,
+    },
+    width: {
+        size: 4535,
+        type: WidthType.DXA,
+    },
+    layout: TableLayoutType.FIXED,
+});
+```
+
+#### Float Options
+
+| Property                   | Type                                 | Notes                                                                                                       |
+| -------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| horizontalAnchor           | `TableAnchorType`                    | Optional. Base object for horizontal positioning: `MARGIN`, `PAGE` or `TEXT`. Assumed `page` if omitted     |
+| verticalAnchor             | `TableAnchorType`                    | Optional. Base object for vertical positioning: `MARGIN`, `PAGE` or `TEXT`. Assumed `page` if omitted       |
+| absoluteHorizontalPosition | `number \| UniversalMeasure`         | Optional. Absolute horizontal offset from the anchor, in twips (may be negative) or a measure like `"1in"`  |
+| relativeHorizontalPosition | `RelativeHorizontalPosition`         | Optional. `CENTER`, `INSIDE`, `LEFT`, `OUTSIDE` or `RIGHT`. Supersedes `absoluteHorizontalPosition`         |
+| absoluteVerticalPosition   | `number \| UniversalMeasure`         | Optional. Absolute vertical offset from the anchor, in twips (may be negative) or a measure like `"1in"`    |
+| relativeVerticalPosition   | `RelativeVerticalPosition`           | Optional. `CENTER`, `INSIDE`, `BOTTOM`, `OUTSIDE`, `INLINE` or `TOP`. Supersedes `absoluteVerticalPosition` |
+| topFromText                | `number \| PositiveUniversalMeasure` | Optional. Minimum distance between the table and the text above it, in twips                                |
+| bottomFromText             | `number \| PositiveUniversalMeasure` | Optional. Minimum distance between the table and the text below it, in twips                                |
+| leftFromText               | `number \| PositiveUniversalMeasure` | Optional. Minimum distance between the table and the text to its left, in twips                             |
+| rightFromText              | `number \| PositiveUniversalMeasure` | Optional. Minimum distance between the table and the text to its right, in twips                            |
+| overlap                    | `OverlapType`                        | Optional. `NEVER` or `OVERLAP` — whether other floating tables may overlap this one                         |
 
 ### Set Indent
 
@@ -101,12 +314,37 @@ const table = new Table({
 
 Here is a list of options you can add to the `table row`:
 
-| Property    | Type                                   | Notes    |
-| ----------- | -------------------------------------- | -------- |
-| children    | `Array<TableCell>`                     | Required |
-| cantSplit   | `boolean`                              | Optional |
-| tableHeader | `boolean`                              | Optional |
-| height      | `{ value: number, rule: HeightRule }`  | Optional |
+| Property    | Type                                                              | Notes                                    |
+| ----------- | ----------------------------------------------------------------- | ---------------------------------------- |
+| children    | `Array<TableCell>`                                                | Required                                 |
+| cantSplit   | `boolean`                                                         | Optional                                 |
+| tableHeader | `boolean`                                                         | Optional                                 |
+| height      | `{ value: number \| PositiveUniversalMeasure, rule: HeightRule }` | Optional                                 |
+| cellSpacing | `ITableCellSpacingProperties`                                     | Optional. Cell spacing for this row only |
+
+`height.value` accepts a number in twips or a universal measure string:
+
+```ts
+const row = new TableRow({
+    ...,
+    height: {
+        value: "0.5in",
+        rule: HeightRule.EXACT,
+    },
+});
+```
+
+A row can also override the table-wide cell spacing:
+
+```ts
+const row = new TableRow({
+    ...,
+    cellSpacing: {
+        value: 50,
+        type: CellSpacingType.DXA,
+    },
+});
+```
 
 ### Repeat row
 
@@ -154,27 +392,33 @@ const tableRow = new TableRow({
 });
 ```
 
+**Note**: A cell must end with a paragraph. If the last child of a cell is not a `Paragraph` (for example a nested `Table`, or an empty `children` array), an empty paragraph is appended to the cell automatically when the document is generated.
+
 ### Options
 
-| Property      | Type                                | Notes                                                       |
-| ------------- | ----------------------------------- | ----------------------------------------------------------- |
-| children      | `Array<Paragraph or Table>`         | Required. You can nest tables by adding a table into a cell |
-| shading       | `IShadingAttributesProperties`      | Optional                                                    |
-| margins       | `ITableCellMarginOptions`           | Optional                                                    |
-| verticalAlign | `VerticalAlignTable`                | Optional                                                    |
-| columnSpan    | `number`                            | Optional                                                    |
-| rowSpan       | `number`                            | Optional                                                    |
-| borders       | `BorderOptions`                     | Optional                                                    |
-| width         | `{ size: number type: WidthType }`  | Optional                                                    |
+| Property      | Type                           | Notes                                                       |
+| ------------- | ------------------------------ | ----------------------------------------------------------- |
+| children      | `Array<Paragraph or Table>`    | Required. You can nest tables by adding a table into a cell |
+| shading       | `IShadingAttributesProperties` | Optional                                                    |
+| margins       | `ITableCellMarginOptions`      | Optional                                                    |
+| verticalAlign | `VerticalAlignTable`           | Optional                                                    |
+| textDirection | `TextDirection`                | Optional. Rotates the text inside the cell                  |
+| verticalMerge | `VerticalMergeType`            | Optional. Low-level vertical merge; prefer `rowSpan`        |
+| columnSpan    | `number`                       | Optional                                                    |
+| rowSpan       | `number`                       | Optional                                                    |
+| borders       | `ITableCellBorders`            | Optional                                                    |
+| width         | `ITableWidthProperties`        | Optional                                                    |
 
 #### Border Options
 
-| Property | Type                                                  | Notes    |
-| -------- | ----------------------------------------------------- | -------- |
-| top      | `{ style: BorderStyle, size: number, color: string }` | Optional |
-| bottom   | `{ style: BorderStyle, size: number, color: string }` | Optional |
-| left     | `{ style: BorderStyle, size: number, color: string }` | Optional |
-| right    | `{ style: BorderStyle, size: number, color: string }` | Optional |
+| Property | Type                                                  | Notes                                               |
+| -------- | ----------------------------------------------------- | --------------------------------------------------- |
+| top      | `{ style: BorderStyle, size: number, color: string }` | Optional                                            |
+| bottom   | `{ style: BorderStyle, size: number, color: string }` | Optional                                            |
+| left     | `{ style: BorderStyle, size: number, color: string }` | Optional                                            |
+| right    | `{ style: BorderStyle, size: number, color: string }` | Optional                                            |
+| start    | `{ style: BorderStyle, size: number, color: string }` | Optional. Logical start edge (text-direction aware) |
+| end      | `{ style: BorderStyle, size: number, color: string }` | Optional. Logical end edge (text-direction aware)   |
 
 ##### Example
 
@@ -251,6 +495,44 @@ const cell = new TableCell({
 | NIL        | Is considered as zero             |
 | PERCENTAGE | Percent of table width            |
 
+As with the table width, `size` accepts a plain number, a percent string (`"25%"`) or a universal measure string (`"1.5in"`), depending on the `WidthType`.
+
+### Cell Margins
+
+A cell can override the table-wide cell margins. Values are in the unit given by `marginUnitType` (defaults to `WidthType.DXA`, i.e. twips):
+
+```ts
+const cell = new TableCell({
+    ...,
+    margins: {
+        marginUnitType: WidthType.DXA,
+        top: 200,
+        bottom: 200,
+        left: 200,
+        right: 200,
+    },
+});
+```
+
+### Text Direction
+
+`textDirection` rotates the text inside a cell, e.g. for vertical header cells:
+
+```ts
+const cell = new TableCell({
+    ...,
+    textDirection: TextDirection.BOTTOM_TO_TOP_LEFT_TO_RIGHT,
+});
+```
+
+`TextDirection` values can be:
+
+| Property                    | Notes                               |
+| --------------------------- | ----------------------------------- |
+| LEFT_TO_RIGHT_TOP_TO_BOTTOM | Normal horizontal text. The default |
+| BOTTOM_TO_TOP_LEFT_TO_RIGHT | Text rotated 90° counter-clockwise  |
+| TOP_TO_BOTTOM_RIGHT_TO_LEFT | Text rotated 90° clockwise          |
+
 ### Nested Tables
 
 To have a table within a table, simply add it in the `children` block of a `table cell`:
@@ -272,7 +554,7 @@ const cell = new TableCell({
 });
 ```
 
-`VerticalAlign` values can be:
+`VerticalAlignTable` values can be:
 
 | Property | Notes                                      |
 | -------- | ------------------------------------------ |
@@ -287,6 +569,8 @@ const cell = new TableCell({
     verticalAlign: VerticalAlignTable.CENTER,
 });
 ```
+
+**Note**: The old `VerticalAlign` export is deprecated. Use `VerticalAlignTable` for table cells (`VerticalAlign` aliases `VerticalAlignSection`, which additionally contains `BOTH` — a value that is only valid for section properties, not table cells).
 
 ## Merging cells together
 
@@ -312,6 +596,26 @@ const cell = new TableCell({
     rowSpan: 3,
 });
 ```
+
+#### Manual vertical merge
+
+`rowSpan` is a convenience: internally, the first cell is marked with `VerticalMergeType.RESTART` and continuation cells are inserted into the following rows with `VerticalMergeType.CONTINUE` for you. If you need full control (for example when constructing every row yourself), you can set `verticalMerge` directly instead:
+
+```ts
+// First row: the cell that starts the merge
+new TableCell({
+    children: [new Paragraph("merged")],
+    verticalMerge: VerticalMergeType.RESTART,
+});
+
+// Following rows: cells that continue the merge
+new TableCell({
+    children: [],
+    verticalMerge: VerticalMergeType.CONTINUE,
+});
+```
+
+If both are set, `verticalMerge` takes precedence over `rowSpan` for the cell's own merge marker, so avoid mixing the two on the same cell.
 
 ### Column Merge
 
@@ -346,40 +650,63 @@ const table = new Table({
 });
 ```
 
-### Table Look (Conditional Formatting)
+### Table Style Options (Conditional Formatting)
 
-Control which conditional formatting from a table style is applied. Table styles can define special formatting for the first row, first column, etc. Use `tableLook` to toggle these formatting options.
+Table styles can define special formatting for the header row, the first column, banded rows, and so on. `tableStyleOptions` decides which of those the table actually uses. These are the same six checkboxes Word shows in the **Table Style Options** group of the **Table Design** tab, and each one is `true` when the box is checked:
 
 ```ts
 const table = new Table({
     style: "GridTable5Dark-Accent3",
-    tableLook: {
-        firstRow: true,      // Apply first row formatting
-        lastRow: false,      // Don't apply last row formatting
-        firstColumn: true,   // Apply first column formatting
-        lastColumn: false,   // Don't apply last column formatting
-        noHBand: false,      // Apply horizontal banding (row stripes)
-        noVBand: true,       // Don't apply vertical banding (column stripes)
+    tableStyleOptions: {
+        headerRow: true, // Header Row: checked
+        totalRow: true, // Total Row: checked
+        bandedRows: false, // Banded Rows: unchecked
     },
 });
 ```
 
-**Note**: When `tableLook` is not specified at all, Word applies row and column banding by default, but does not apply first/last row/column formatting.
+Because `tableStyleOptions` only selects parts of a table style, it has no visible effect on a table without a `style`.
 
-#### Options
+#### Mapping to Word's checkboxes
 
-| Property     | Type      | Description                                  |
-| ------------ | --------- | -------------------------------------------- |
-| firstRow     | `boolean` | Apply special formatting to first row        |
-| lastRow      | `boolean` | Apply special formatting to last row         |
-| firstColumn  | `boolean` | Apply special formatting to first column     |
-| lastColumn   | `boolean` | Apply special formatting to last column      |
-| noHBand      | `boolean` | Disable horizontal banding (row stripes)     |
-| noVBand      | `boolean` | Disable vertical banding (column stripes)    |
+| Word checkbox  | Property        | Default |
+| -------------- | --------------- | ------- |
+| Header Row     | `headerRow`     | `true`  |
+| Total Row      | `totalRow`      | `false` |
+| Banded Rows    | `bandedRows`    | `true`  |
+| First Column   | `firstColumn`   | `true`  |
+| Last Column    | `lastColumn`    | `false` |
+| Banded Columns | `bandedColumns` | `false` |
+
+<Callout type="info">
+    The underlying `w:tblLook` element stores banding as the negative attributes `noHBand` and
+    `noVBand`. `bandedRows` and `bandedColumns` follow Word's checkboxes instead and are inverted on
+    the way out, so you never have to write a double negative.
+</Callout>
+
+#### Header Row is not "Repeat Header Rows"
+
+`headerRow` decides whether the style paints its header band. It is **not** the same as Word's **Repeat Header Rows** (on the **Layout** tab), which repeats a row across page breaks — that is [`tableHeader`](#table-row) on `TableRow`. Word keeps the two apart and so does this library: setting one never implies the other.
+
+#### Defaults
+
+The defaults above match Word's own: **Header Row**, **First Column** and **Banded Rows** checked; **Total Row**, **Last Column** and **Banded Columns** unchecked. In OOXML terms that is the bitmask `0x04A0`.
+
+They are applied whenever you omit `tableStyleOptions`, and any options you do pass are merged on top rather than replacing the whole set — so `tableStyleOptions: { totalRow: true }` turns on the Total Row and leaves the other five at their defaults.
+
+<Callout type="info">
+    The spec and Word disagree here, which is why the defaults are always written out explicitly.
+    ECMA-376 says a table with no `tblLook` element gets `0x0000` (everything off), but Word instead
+    assumes `0x04A0` ([MS-OI29500
+    §17.4.55](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oi29500/90f075ce-b16d-422a-b1b0-39c9777a594e)).
+    Emitting the values keeps every renderer agreeing with what Word displays.
+</Callout>
+
+To opt out of a default, set it explicitly — for example `tableStyleOptions: { headerRow: false }` to drop the header row formatting.
 
 ## Examples
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/4-basic-table.ts ':include')
+[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/4-basic-table.ts ":include")
 
 _Source: https://github.com/dolanmiu/docx/blob/master/demo/4-basic-table.ts_
 
@@ -387,7 +714,7 @@ _Source: https://github.com/dolanmiu/docx/blob/master/demo/4-basic-table.ts_
 
 Example showing how to add colorful borders to tables
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/20-table-cell-borders.ts ':include')
+[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/20-table-cell-borders.ts ":include")
 
 _Source: https://github.com/dolanmiu/docx/blob/master/demo/20-table-cell-borders.ts_
 
@@ -395,11 +722,11 @@ _Source: https://github.com/dolanmiu/docx/blob/master/demo/20-table-cell-borders
 
 Example showing how to add images to tables
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/24-images-to-table-cell.ts ':include')
+[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/24-images-to-table-cell.ts ":include")
 
 _Source: https://github.com/dolanmiu/docx/blob/master/demo/24-images-to-table-cell.ts_
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/36-image-to-table-cell.ts ':include')
+[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/36-image-to-table-cell.ts ":include")
 
 _Source: https://github.com/dolanmiu/docx/blob/master/demo/36-image-to-table-cell.ts_
 
@@ -407,7 +734,7 @@ _Source: https://github.com/dolanmiu/docx/blob/master/demo/36-image-to-table-cel
 
 Example showing how align text in a table cell
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/31-tables.ts ':include')
+[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/31-tables.ts ":include")
 
 _Source: https://github.com/dolanmiu/docx/blob/master/demo/31-tables.ts_
 
@@ -415,11 +742,11 @@ _Source: https://github.com/dolanmiu/docx/blob/master/demo/31-tables.ts_
 
 Example showing merging of columns and rows and shading
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/32-merge-and-shade-table-cells.ts ':include')
+[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/32-merge-and-shade-table-cells.ts ":include")
 
 _Source: https://github.com/dolanmiu/docx/blob/master/demo/32-merge-and-shade-table-cells.ts_
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/41-merge-table-cells-2.ts ':include')
+[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/41-merge-table-cells-2.ts ":include")
 
 _Source: https://github.com/dolanmiu/docx/blob/master/demo/41-merge-table-cells-2.ts_
 
@@ -427,12 +754,6 @@ _Source: https://github.com/dolanmiu/docx/blob/master/demo/41-merge-table-cells-
 
 Example showing merging of columns and rows
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/43-images-to-table-cell-2.ts ':include')
+[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/43-images-to-table-cell-2.ts ":include")
 
 _Source: https://github.com/dolanmiu/docx/blob/master/demo/43-images-to-table-cell-2.ts_
-
-### Floating tables
-
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/34-floating-tables.ts ':include')
-
-_Source: https://github.com/dolanmiu/docx/blob/master/demo/34-floating-tables.ts_

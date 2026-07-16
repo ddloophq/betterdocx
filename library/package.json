@@ -1,0 +1,89 @@
+{
+    "name": "betterdocx",
+    "version": "0.11.0",
+    "description": "Easily generate .docx files with JS/TS with a nice declarative API. Works for Node and on the Browser.",
+    "keywords": [
+        "clippy",
+        "create",
+        "creator",
+        "doc",
+        "document",
+        "docx",
+        "generate",
+        "office",
+        "officegen",
+        "word"
+    ],
+    "homepage": "https://betterdocx.dev",
+    "bugs": {
+        "url": "https://github.com/ddloophq/betterdocx/issues"
+    },
+    "license": "MIT",
+    "author": "DDLoop",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ddloophq/betterdocx.git",
+        "directory": "library"
+    },
+    "files": [
+        "dist"
+    ],
+    "type": "module",
+    "sideEffects": false,
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./core": {
+            "types": "./dist/core.d.ts",
+            "default": "./dist/core.js"
+        },
+        "./patcher": {
+            "types": "./dist/patcher.d.ts",
+            "default": "./dist/patcher.js"
+        },
+        "./advanced": {
+            "types": "./dist/advanced.d.ts",
+            "default": "./dist/advanced.js"
+        }
+    },
+    "scripts": {
+        "build": "bun run typecheck && tsdown",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:ui": "vitest --ui --coverage",
+        "test:ci": "vitest run --coverage",
+        "test:package": "bun run build && bash scripts/test-package.sh",
+        "test:demos": "bash scripts/run-demos.sh",
+        "prepublishOnly": "bun run build",
+        "predemo": "bun run build",
+        "demo": "bun ./demo/index.ts",
+        "extract": "bun ./scripts/extract-document.ts"
+    },
+    "dependencies": {
+        "jszip": "^3.10.1",
+        "xml": "^1.0.1",
+        "xml-js": "^1.6.11"
+    },
+    "devDependencies": {
+        "@types/node": "^26.1.1",
+        "@types/unzipper": "^0.10.11",
+        "@types/xml": "^1.0.11",
+        "@vitest/coverage-v8": "^4.1.10",
+        "@vitest/ui": "^4.1.10",
+        "execa": "^9.6.1",
+        "inquirer": "^14.0.2",
+        "jsdom": "^29.1.1",
+        "publint": "^0.3.21",
+        "tsdown": "^0.22.7",
+        "typescript": "6.0.3",
+        "unzipper": "^0.12.5",
+        "vitest": "^4.1.10"
+    },
+    "engines": {
+        "node": ">=24"
+    }
+}

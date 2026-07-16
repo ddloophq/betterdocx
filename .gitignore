@@ -51,8 +51,10 @@ docs/.nojekyll
 # IntelliJ
 .idea
 
-# Lock files
+# Lock files (bun.lock is the only tracked lockfile)
 yarn.lock
+package-lock.json
+pnpm-lock.yaml
 
 # Documents
 My Document.docx

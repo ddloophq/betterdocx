@@ -29,7 +29,6 @@ This will produce:
 
 ![Math Example](math-example.png "Math Example")
 
-
 ## Math Components
 
 `MathComponents` are the unit sized building blocks of an equation in `docx`. A `MathComponent` takes in more nested `MathComponents` until you reach `MathRun`, which has no children. `MathRun` is similar to a [TextRun](text).
@@ -94,12 +93,12 @@ new Math({
             numerator: [new MathRun("1")],
             denominator: [new MathRun("2")],
         }),
-        new MathText("+"),
+        new MathRun("+"),
         new MathFraction({
             numerator: [new MathRun("1")],
             denominator: [new MathRun("2")],
         }),
-        new MathText("= 1"),
+        new MathRun("= 1"),
     ],
 }),
 ```
@@ -124,6 +123,31 @@ new MathSum({
     ],
     subScript: [new MathRun("i")],
     superScript: [new MathRun("10")],
+}),
+```
+
+### Integral
+
+A `MathComponent` for the `∫` symbol. Like `MathSum`, it takes optional `superScript` and/or `subScript` arguments for the integration bounds. The bounds are rendered beside the integral sign.
+
+```ts
+new MathIntegral({
+    children: [new MathRun("x dx")],
+}),
+```
+
+With bounds:
+
+```ts
+new MathIntegral({
+    children: [
+        new MathSuperScript({
+            children: [new MathRun("x")],
+            superScript: [new MathRun("2")],
+        }),
+    ],
+    subScript: [new MathRun("0")],
+    superScript: [new MathRun("1")],
 }),
 ```
 
@@ -192,6 +216,18 @@ new MathSubSuperScript({
     children: [new MathRun("test")],
     superScript: [new MathRun("hello")],
     subScript: [new MathRun("world")],
+}),
+```
+
+### Pre-Sub-Super Script
+
+`MathPreSubSuperScripts` place the scripts to the left of the base instead of the right. Both `subScript` and `superScript` are required.
+
+```ts
+new MathPreSubSuperScript({
+    children: [new MathRun("x")],
+    superScript: [new MathRun("14")],
+    subScript: [new MathRun("6")],
 }),
 ```
 

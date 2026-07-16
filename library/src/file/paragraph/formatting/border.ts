@@ -1,0 +1,51 @@
+// http://officeopenxml.com/WPborders.php
+import { BorderElement, BorderStyle, IBorderOptions } from "@file/border";
+import { IgnoreIfEmptyXmlComponent, XmlComponent } from "@file/xml-components";
+
+export type IBordersOptions = {
+    readonly top?: IBorderOptions;
+    readonly bottom?: IBorderOptions;
+    readonly left?: IBorderOptions;
+    readonly right?: IBorderOptions;
+    readonly between?: IBorderOptions;
+};
+
+export class Border extends IgnoreIfEmptyXmlComponent {
+    public constructor(options: IBordersOptions) {
+        super("w:pBdr");
+
+        if (options.top) {
+            this.root.push(new BorderElement("w:top", options.top));
+        }
+
+        if (options.bottom) {
+            this.root.push(new BorderElement("w:bottom", options.bottom));
+        }
+
+        if (options.left) {
+            this.root.push(new BorderElement("w:left", options.left));
+        }
+
+        if (options.right) {
+            this.root.push(new BorderElement("w:right", options.right));
+        }
+
+        if (options.between) {
+            this.root.push(new BorderElement("w:between", options.between));
+        }
+    }
+}
+
+export const THEMATIC_BREAK_BORDER: IBorderOptions = {
+    color: "auto",
+    space: 1,
+    style: BorderStyle.SINGLE,
+    size: 6,
+};
+
+export class ThematicBreak extends XmlComponent {
+    public constructor() {
+        super("w:pBdr");
+        this.root.push(new BorderElement("w:bottom", THEMATIC_BREAK_BORDER));
+    }
+}

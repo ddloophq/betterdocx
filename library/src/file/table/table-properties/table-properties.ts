@@ -1,0 +1,133 @@
+// http://officeopenxml.com/WPtableProperties.php
+//
+// <xsd:complexType name="CT_TblPrBase">
+//     <xsd:sequence>
+//         <xsd:element name="tblStyle" type="CT_String" minOccurs="0"/>
+//         <xsd:element name="tblpPr" type="CT_TblPPr" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="tblOverlap" type="CT_TblOverlap" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="bidiVisual" type="CT_OnOff" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="tblStyleRowBandSize" type="CT_DecimalNumber" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="tblStyleColBandSize" type="CT_DecimalNumber" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="tblW" type="CT_TblWidth" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="jc" type="CT_JcTable" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="tblCellSpacing" type="CT_TblWidth" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="tblInd" type="CT_TblWidth" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="tblBorders" type="CT_TblBorders" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="shd" type="CT_Shd" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="tblLayout" type="CT_TblLayoutType" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="tblCellMar" type="CT_TblCellMar" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="tblLook" type="CT_TblLook" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="tblCaption" type="CT_String" minOccurs="0" maxOccurs="1"/>
+//         <xsd:element name="tblDescription" type="CT_String" minOccurs="0" maxOccurs="1"/>
+//     </xsd:sequence>
+// </xsd:complexType>
+import {
+    IgnoreIfEmptyXmlComponent,
+    OnOffElement,
+    StringEnumValueElement,
+    StringValueElement,
+} from "@file/xml-components";
+
+import { Alignment, AlignmentType } from "../../paragraph";
+import { IShadingAttributesProperties, Shading } from "../../shading";
+import { ITableWidthProperties, TableWidthElement } from "../table-width";
+import { ITableBordersOptions, TableBorders } from "./table-borders";
+import {
+    ITableCellMarginOptions,
+    TableCellMargin,
+    TableCellMarginElementType,
+} from "./table-cell-margin";
+import { ITableFloatOptions, OverlapType, TableFloatProperties } from "./table-float-properties";
+import { TableLayout, TableLayoutType } from "./table-layout";
+import { ITableCellSpacingProperties, TableCellSpacingElement } from "../table-cell-spacing";
+import { ITableStyleOptions, TableLook } from "./table-look";
+
+export type ITablePropertiesOptions = {
+    readonly width?: ITableWidthProperties;
+    readonly indent?: ITableWidthProperties;
+    readonly layout?: (typeof TableLayoutType)[keyof typeof TableLayoutType];
+    readonly borders?: ITableBordersOptions;
+    readonly float?: ITableFloatOptions;
+    readonly shading?: IShadingAttributesProperties;
+    readonly style?: string;
+    readonly alignment?: (typeof AlignmentType)[keyof typeof AlignmentType];
+    readonly cellMargin?: ITableCellMarginOptions;
+    readonly visuallyRightToLeft?: boolean;
+    readonly tableStyleOptions?: ITableStyleOptions;
+    readonly cellSpacing?: ITableCellSpacingProperties;
+};
+
+export class TableProperties extends IgnoreIfEmptyXmlComponent {
+    public constructor(options: ITablePropertiesOptions) {
+        super("w:tblPr");
+
+        if (options.style) {
+            this.root.push(new StringValueElement("w:tblStyle", options.style));
+        }
+
+        if (options.float) {
+            const { overlap, ...position } = options.float;
+            if (Object.values(position).some((value) => value !== undefined)) {
+                this.root.push(new TableFloatProperties(position));
+            }
+            if (overlap) {
+                this.root.push(
+                    new StringEnumValueElement<(typeof OverlapType)[keyof typeof OverlapType]>(
+                        "w:tblOverlap",
+                        overlap,
+                    ),
+                );
+            }
+        }
+
+        if (options.visuallyRightToLeft !== undefined) {
+            this.root.push(new OnOffElement("w:bidiVisual", options.visuallyRightToLeft));
+        }
+
+        if (options.width) {
+            this.root.push(new TableWidthElement("w:tblW", options.width));
+        }
+
+        if (options.alignment) {
+            this.root.push(new Alignment(options.alignment));
+        }
+
+        // Per the CT_TblPrBase sequence above, tblCellSpacing must come after
+        // jc and before tblInd.
+        if (options.cellSpacing) {
+            this.root.push(new TableCellSpacingElement(options.cellSpacing));
+        }
+
+        if (options.indent) {
+            this.root.push(new TableWidthElement("w:tblInd", options.indent));
+        }
+
+        if (options.borders) {
+            // With a referenced style, sides the caller leaves unspecified defer
+            // to that style rather than the forced all-sides default.
+            this.root.push(
+                new TableBorders(options.borders, {
+                    inheritUnspecified: options.style !== undefined,
+                }),
+            );
+        }
+
+        if (options.shading) {
+            this.root.push(new Shading(options.shading));
+        }
+
+        if (options.layout) {
+            this.root.push(new TableLayout(options.layout));
+        }
+
+        if (options.cellMargin) {
+            this.root.push(
+                new TableCellMargin(TableCellMarginElementType.TABLE, options.cellMargin),
+            );
+        }
+
+        if (options.tableStyleOptions) {
+            this.root.push(new TableLook(options.tableStyleOptions));
+        }
+    }
+}

@@ -26,8 +26,6 @@ new Document({
 
 Each `config` entry includes the following properties:
 
-. Each level includes the following properties:
-
 | Property  | Type              | Notes    | Possible Values                                                                                                                                                        |
 | --------- | ----------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | reference | `string`          | Required | A unique `string`                                                                                                                                                      |
@@ -37,17 +35,35 @@ Each `config` entry includes the following properties:
 
 Levels define the numbering definition itself, what it looks like, the indention, the alignment and the style. The reason why it is an array is because it allows the ability to create sub-lists. A sub list will have a different configuration because you may want the sub-list to have a different indentation or different bullet.
 
-| Property  | Type          | Notes    | Possible Values                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| --------- | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| level     | `number`      | Required | The list level this definition is for. `0` is for the root level, `1` is for a sub list, `2` is for a sub-sub-list etc.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| format    | `LevelFormat` | Optional | `DECIMAL`, `UPPER_ROMAN`, `LOWER_ROMAN`, `UPPER_LETTER`, `LOWER_LETTER`, `ORDINAL`, `CARDINAL_TEXT`, `ORDINAL_TEXT`, `HEX`, `CHICAGO`, `IDEOGRAPH__DIGITAL`, `JAPANESE_COUNTING`, `AIUEO`, `IROHA`, `DECIMAL_FULL_WIDTH`, `DECIMAL_HALF_WIDTH`, `JAPANESE_LEGAL`, `JAPANESE_DIGITAL_TEN_THOUSAND`, `DECIMAL_ENCLOSED_CIRCLE`, `DECIMAL_FULL_WIDTH2`, `AIUEO_FULL_WIDTH`, `IROHA_FULL_WIDTH`, `DECIMAL_ZERO`, `BULLET`, `GANADA`, `CHOSUNG`, `DECIMAL_ENCLOSED_FULLSTOP`, `DECIMAL_ENCLOSED_PARENTHESES`, `DECIMAL_ENCLOSED_CIRCLE_CHINESE`, `IDEOGRAPH_ENCLOSED_CIRCLE`, `IDEOGRAPH_TRADITIONAL`, `IDEOGRAPH_ZODIAC`, `IDEOGRAPH_ZODIAC_TRADITIONAL`, `TAIWANESE_COUNTING`, `IDEOGRAPH_LEGAL_TRADITIONAL`, `TAIWANESE_COUNTING_THOUSAND`, `TAIWANESE_DIGITAL`, `CHINESE_COUNTING`, `CHINESE_LEGAL_SIMPLIFIED`, `CHINESE_COUNTING_THOUSAND`, `KOREAN_DIGITAL`, `KOREAN_COUNTING`, `KOREAN_LEGAL`, `KOREAN_DIGITAL2`, `VIETNAMESE_COUNTING`, `RUSSIAN_LOWER`, `RUSSIAN_UPPER`, `NONE`, `NUMBER_IN_DASH`, `HEBREW1`, `HEBREW2`, `ARABIC_ALPHA`, `ARABIC_ABJAD`, `HINDI_VOWELS`, `HINDI_CONSONANTS`, `HINDI_NUMBERS`, `HINDI_COUNTING`, `THAI_LETTERS`, `THAI_NUMBERS`, `THAI_COUNTING`, `BAHT_TEXT`, `DOLLAR_TEXT`, `CUSTOM` |
-| text      | `string`      | Optional | A unique `string` to describe the shape of the bullet                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| alignment | `string`      | Required | `START`, `CENTER`, `END`, `BOTH`, `MEDIUM_KASHIDA`, `DISTRIBUTE`, `NUM_TAB`, `HIGH_KASHIDA`, `LOW_KASHIDA`, `THAI_DISTRIBUTE`, `LEFT`, `RIGHT`, `JUSTIFIED`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| style     | `string`      | Optional | [Sections](styling-with-js)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Property              | Type           | Notes    | Possible Values                                                                                                                                                                       |
+| --------------------- | -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| level                 | `number`       | Required | The list level this definition is for. `0` is for the root level, `1` is for a sub list, `2` is for a sub-sub-list etc.                                                               |
+| format                | `NumberFormat` | Optional | An OOXML number format such as `DECIMAL`, `UPPER_ROMAN`, `LOWER_LETTER`, `ORDINAL`, or `BULLET`. `NumberFormat` contains the complete supported value set.                            |
+| text                  | `string`       | Optional | A unique `string` to describe the shape of the bullet                                                                                                                                 |
+| alignment             | `string`       | Optional | `START`, `CENTER`, `END`, `BOTH`, `MEDIUM_KASHIDA`, `DISTRIBUTE`, `NUM_TAB`, `HIGH_KASHIDA`, `LOW_KASHIDA`, `THAI_DISTRIBUTE`, `LEFT`, `RIGHT`, `JUSTIFIED`. Defaults to `START`      |
+| start                 | `number`       | Optional | The value this level starts counting at. Defaults to `1`                                                                                                                              |
+| suffix                | `LevelSuffix`  | Optional | The character placed between the number/bullet and the paragraph text: `LevelSuffix.NOTHING`, `LevelSuffix.SPACE` or `LevelSuffix.TAB`. If omitted, Word uses a tab                   |
+| isLegalNumberingStyle | `boolean`      | Optional | When `true`, displays all preceding level numbers in this level's `text` in decimal ("legal" numbering), e.g. a `%1` from an `UPPER_ROMAN` parent level renders as `1` instead of `I` |
+| style                 | `string`       | Optional | [Sections](styling-with-js)                                                                                                                                                           |
+
+For example, a level that starts counting at 5, puts a space between the number and the text, and renders parent levels in decimal:
+
+```ts
+{
+    level: 1,
+    format: NumberFormat.DECIMAL,
+    text: "%1.%2",
+    start: 5,
+    suffix: LevelSuffix.SPACE,
+    isLegalNumberingStyle: true,
+}
+```
+
+> Note: `NumberFormat.CUSTOM` maps to the OOXML `custom` number format, which is meant to be paired with a separate format descriptor attribute. The library does not emit that descriptor, so `CUSTOM` may not render as expected in word processors — prefer one of the concrete formats above. `LevelFormat` remains as a deprecated compatibility alias.
 
 ## Using ordered lists in `docx`
 
-Add a `numbering` section to the `Document` to numbering style, define your levels. Use `LevelFormat.UPPER_ROMAN` for the `format` in `levels`:
+Add a `numbering` section to the `Document` to numbering style, define your levels. Use `NumberFormat.UPPER_ROMAN` for the `format` in `levels`:
 
 ```ts
 const doc = new Document({
@@ -59,7 +75,7 @@ const doc = new Document({
                 levels: [
                     {
                         level: 0,
-                        format: LevelFormat.UPPER_ROMAN,
+                        format: NumberFormat.UPPER_ROMAN,
                         text: "%1",
                         alignment: AlignmentType.START,
                         style: {
@@ -97,7 +113,7 @@ Along with `reference` and `level`, the `numbering` object supports an optional 
 | --------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | reference | `string` | The numbering style reference, must match a defined config                                                                                                                           |
 | level     | `number` | The list level (0 = top-level, 1 = sub-list, etc.)                                                                                                                                   |
-| instance  | `number` | *(Optional)* Identifies the instance of the list. Lists with the same `instance` (or none) continue numbering across paragraphs. A new `instance` value restarts numbering from `1`. |
+| instance  | `number` | _(Optional)_ Identifies the instance of the list. Lists with the same `instance` (or none) continue numbering across paragraphs. A new `instance` value restarts numbering from `1`. |
 
 Example:
 
@@ -118,11 +134,30 @@ new Paragraph({
 });
 ```
 
+### How `instance` restarts work: level overrides
 
+Under the hood, every distinct `reference`/`instance` pair used on a paragraph creates its own _concrete numbering_ (a `w:num` element) pointing at the shared abstract definition. Each concrete numbering carries an override for level 0 (`IConcreteNumberingOptions.overrideLevels`, a list of `{ num, start }` entries emitted as `w:lvlOverride`/`w:startOverride`):
+
+```ts
+{
+    overrideLevels: [
+        {
+            num: 0, // the level being overridden
+            start: 1, // the value that level restarts at
+        },
+    ],
+}
+```
+
+Because each instance gets its own concrete numbering with a fresh level-0 start override, a new `instance` value restarts numbering. The restart value is taken from the `start` option of the first level in your config (defaulting to `1`), so a config with `start: 5` on level 0 makes every new instance begin at 5.
+
+`ConcreteNumbering` and its options are exported for advanced use, but when building documents through `Document` you normally never construct them yourself — using `instance` on a paragraph is all that is needed.
+
+> Advanced: the exported `Numbering` class accepts an optional second constructor argument, `INumberingIdOffsets` (`{ abstractNum?, num? }`), which offsets generated numbering ids to avoid collisions when merging into a document that already defines numberings. This is internal plumbing used by the patcher — documents created via `new Document(...)` always build their own `Numbering` without offsets.
 
 ## Un-ordered lists / Bullet points
 
-Add a `numbering` section to the `Document` to numbering style, define your levels. Use `LevelFormat.BULLET` for the `format` in `levels`:
+Add a `numbering` section to the `Document` to numbering style, define your levels. Use `NumberFormat.BULLET` for the `format` in `levels`:
 
 ```ts
 const doc = new Document({
@@ -134,7 +169,7 @@ const doc = new Document({
                 levels: [
                     {
                         level: 0,
-                        format: LevelFormat.BULLET,
+                        format: NumberFormat.BULLET,
                         text: "\u1F60",
                         alignment: AlignmentType.LEFT,
                         style: {
@@ -177,7 +212,7 @@ const doc = new Document({
                 levels: [
                     {
                         level: 0,
-                        format: LevelFormat.BULLET,
+                        format: NumberFormat.BULLET,
                         text: "\u1F60",
                         alignment: AlignmentType.LEFT,
                         style: {

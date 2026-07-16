@@ -3,32 +3,41 @@ title: Bullet Points
 ---
 
 > Bullet Points requires an understanding of [Paragraphs](paragraph).
+
 ## Example
 
 To make a bullet point, simply make a paragraph into a bullet point:
 
 ```ts
 const doc = new Document({
-    sections: [{
-        children: [
-            new Paragraph({
-                text: "Bullet points",
-                bullet: {
-                    level: 0 // How deep you want the bullet to be. Maximum level is 9
-                }
-            }),
-            new Paragraph({
-                text: "Are awesome",
-                bullet: {
-                    level: 0
-                }
-            })
-        ],
-    }]
+    sections: [
+        {
+            children: [
+                new Paragraph({
+                    text: "Bullet points",
+                    bullet: {
+                        level: 0, // How deep you want the bullet to be. Levels 0 to 8 are supported
+                    },
+                }),
+                new Paragraph({
+                    text: "Are awesome",
+                    bullet: {
+                        level: 0,
+                    },
+                }),
+            ],
+        },
+    ],
 });
 ```
 
 ### This will produce:
 
--   Bullet points
--   Are awesome
+- Bullet points
+- Are awesome
+
+## How it works
+
+`bullet` is a shortcut that points the paragraph at a built-in preset numbering definition which is always included in the document. The preset defines 9 bullet levels (`level: 0` through `8`), cycling through the glyphs ● (level 0), ○ (level 1), ■ (level 2), then repeating ●, ○, ■ and falling back to ● for the deepest levels, with the indentation increasing by half an inch per level.
+
+The preset itself is fixed — if you want different bullet characters, fonts, indentation or numbered lists, define your own numbering config instead. See [Bullets and Numbering](numbering) for full control.

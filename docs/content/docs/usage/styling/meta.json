@@ -1,7 +1,4 @@
 {
-  "title": "Styling",
-  "pages": [
-    "styling-with-js",
-    "styling-with-xml"
-  ]
+    "title": "Styling",
+    "pages": ["styling-with-js", "styling-with-xml"]
 }

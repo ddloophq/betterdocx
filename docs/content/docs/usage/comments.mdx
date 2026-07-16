@@ -6,14 +6,127 @@ title: Comments
 
 ## Intro
 
-To add comments in `docx`, a `comments` block is specified in the `Document`. This block defines all the comments in your document. Each comment has an `id`, which you then reference later.
+To add comments, declare a `comments` block in the `Document` options. The block contains a `children` array which defines every comment in the document. Each comment has a numeric `id`, which you reference later from the document body to anchor the comment to text.
 
-In the spot you want to add a comment, you simply add a `CommentRangeStart` and a `CommentRangeEnd` to specify where the comment starts and ends.
+```ts
+import { Document, Paragraph } from "betterdocx";
 
-Alternatively, you can use `CommentReference` to specify a comment at a specific singular point.
+const doc = new Document({
+    comments: {
+        children: [
+            {
+                id: 0,
+                author: "Jane Doe",
+                initials: "JD",
+                date: new Date(),
+                children: [new Paragraph("This sentence needs rewording.")],
+            },
+        ],
+    },
+    sections: [
+        // ...
+    ],
+});
+```
 
-### Example
+### Comment options
 
-[Example](https://raw.githubusercontent.com/dolanmiu/docx/master/demo/73-comments.ts ':include')
+| Property | Type          | Notes                              | Possible Values                                             |
+| -------- | ------------- | ---------------------------------- | ----------------------------------------------------------- |
+| id       | `number`      | Required                           | Unique id of the comment, referenced from the document body |
+| children | `FileChild[]` | Required                           | The comment body, e.g. `Paragraph` objects                  |
+| initials | `string`      | Optional                           | Initials shown in the comment margin, e.g. `"JD"`           |
+| author   | `string`      | Optional                           | Name of the comment author                                  |
+| date     | `Date`        | Optional. Defaults to `new Date()` | Timestamp of the comment                                    |
 
-_Source: https://github.com/dolanmiu/docx/blob/master/demo/73-comments.ts_
+## Anchoring a comment to text
+
+To attach a comment to a range of text, wrap the commented runs with a `CommentRangeStart` and `CommentRangeEnd`, each constructed with the comment `id`. Then add a `CommentReference` with the same `id` as a child of a `TextRun` — this inserts the comment marker that Word uses to display the comment.
+
+```ts
+new Paragraph({
+    children: [
+        new TextRun("Hello World. "),
+        new CommentRangeStart(0),
+        new TextRun("This text is commented on."),
+        new CommentRangeEnd(0),
+        new TextRun({
+            children: [new CommentReference(0)],
+        }),
+    ],
+});
+```
+
+Alternatively, you can place a `CommentReference` on its own (without a range) to attach a comment to a single point in the text.
+
+## Complete example
+
+```ts
+import {
+    CommentRangeEnd,
+    CommentRangeStart,
+    CommentReference,
+    Document,
+    Packer,
+    Paragraph,
+    TextRun,
+} from "betterdocx";
+
+const doc = new Document({
+    comments: {
+        children: [
+            {
+                id: 0,
+                author: "Jane Doe",
+                initials: "JD",
+                date: new Date(),
+                children: [new Paragraph("Please double-check this claim.")],
+            },
+            {
+                id: 1,
+                author: "John Smith",
+                initials: "JS",
+                date: new Date(),
+                children: [
+                    new Paragraph("First paragraph of the comment."),
+                    new Paragraph("A comment can contain multiple paragraphs."),
+                ],
+            },
+        ],
+    },
+    sections: [
+        {
+            children: [
+                new Paragraph({
+                    children: [
+                        new TextRun("Hello World. "),
+                        new CommentRangeStart(0),
+                        new TextRun({
+                            text: "Foo Bar",
+                            bold: true,
+                        }),
+                        new CommentRangeEnd(0),
+                        new TextRun({
+                            children: [new CommentReference(0)],
+                        }),
+                    ],
+                }),
+                new Paragraph({
+                    children: [
+                        new CommentRangeStart(1),
+                        new TextRun("Some text which needs commenting."),
+                        new CommentRangeEnd(1),
+                        new TextRun({
+                            children: [new CommentReference(1)],
+                        }),
+                    ],
+                }),
+            ],
+        },
+    ],
+});
+
+const buffer = await Packer.toBuffer(doc);
+```
+
+Multiple comment ranges may overlap the same text, for example to model replies — see `demo/73-comments.ts` for a larger example.

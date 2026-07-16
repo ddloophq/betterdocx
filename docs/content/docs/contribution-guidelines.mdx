@@ -8,8 +8,6 @@ title: Contribution Guidelines
     // http://officeopenxml.com/WPdocument.php
     ```
 
-    {/* cSpell:ignore datypic */}
-
     It can be a link to `officeopenxml.com` or `datypic.com` etc.
     It could also be a reference to the official ECMA-376 standard: https://www.ecma-international.org/publications-and-standards/standards/ecma-376/
 
@@ -19,9 +17,7 @@ title: Contribution Guidelines
     // <xsd:element name="tbl" type="CT_Tbl" minOccurs="0" maxOccurs="1"/>
     ```
 
-- Follow Prettier standards, and consider using the [Prettier VSCode](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) plugin.
-
-- Follow the `ESLint` rules
+- Format with `oxfmt` (`bun run format`) and follow the `oxlint` rules (`bun run lint`).
 
 ## Always think about the user
 
@@ -39,8 +35,6 @@ Please write good commit messages when making a commit: https://chris.beams.io/p
 
 **Do not:**
 
-{/* cspell:disable */}
-
 ```
 c // What?
 rtl // Adding acronyms without explaining anything else is not helpful
@@ -48,8 +42,6 @@ works! // Glad its working, but the message is not helpful
 demo updated // Getting better, but capitalize the first letter
 Unesesary coment removed // Make sure to use correct spelling
 ```
-
-{/* cspell:enable */}
 
 **Do**
 
@@ -115,10 +107,10 @@ Using `type` aliases in TypeScript offers several advantages over `interfaces`:
 
 - **Flexibility with Complex Types**: `type` supports defining unions, intersections, and other complex type constructs that `interfaces` cannot handle. For example:
 
-  ```typescript
-  type StringOrNumber = string | number;
-  type Combined = TypeA & TypeB;
-  ```
+    ```typescript
+    type StringOrNumber = string | number;
+    type Combined = TypeA & TypeB;
+    ```
 
 - **Support for Primitive Types**: `type` can alias primitive types (e.g., `type ID = string`), while `interfaces` are limited to object shapes.
 - **Tuple and Array Types**: `type` allows defining tuples and specific array types easily (e.g., `type Point = [number, number]`), which `interfaces` cannot represent.

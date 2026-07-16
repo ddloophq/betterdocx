@@ -52,6 +52,35 @@ const paragraph = new Paragraph({
 
 The above shows the use of two tab stops, and how to select/use it.
 
+### Options
+
+Each tab stop definition takes the following options:
+
+| Option   | Type                              | Notes    | Possible Values                                                             |
+| -------- | --------------------------------- | -------- | --------------------------------------------------------------------------- |
+| type     | `TabStopType`                     | Required | `LEFT`, `RIGHT`, `CENTER`, `BAR`, `CLEAR`, `DECIMAL`, `START`, `END`, `NUM` |
+| position | `number` or `TabStopPosition.MAX` | Required | Position in DXA, or `TabStopPosition.MAX` for the right edge                |
+| leader   | `LeaderType`                      | Optional | `DOT`, `HYPHEN`, `MIDDLE_DOT`, `NONE`, `UNDERSCORE`                         |
+
+Notes on the less common types: `START` and `END` are the writing-direction-aware equivalents of `LEFT` and `RIGHT`, `DECIMAL` aligns numbers on their decimal point, `BAR` draws a vertical bar at the tab position, `NUM` is a legacy list-alignment tab, and `CLEAR` removes an inherited tab stop at that position.
+
+### Leaders
+
+The `leader` option fills the empty space leading up to the tab stop with a repeated character. For example, a dotted leader as commonly seen in tables of contents:
+
+```ts
+const paragraph = new Paragraph({
+    children: [new TextRun("Chapter One"), new TextRun("\t42")],
+    tabStops: [
+        {
+            type: TabStopType.RIGHT,
+            position: TabStopPosition.MAX,
+            leader: LeaderType.DOT,
+        },
+    ],
+});
+```
+
 You can add multiple tab stops of the same `type` too.
 
 ```ts
@@ -179,8 +208,8 @@ new Paragraph({
 
 ### Options
 
-| Option     | Type                      | Description                           | Possible Values                                               |
-| ---------- | ------------------------- | ------------------------------------- | ------------------------------------------------------------- |
-| alignment  | `PositionalTabAlignment`  | The alignment of the tab stop         | `LEFT`, `RIGHT`, `CENTER`                                     |
-| relativeTo | `PositionalTabRelativeTo` | The relative position of the tab stop | `MARGIN`, `INDENT`                                            |
-| leader     | `PositionalTabLeader`     | The leader of the tab stop            | `NONE`, `DOT`, `HYPHEN`, `UNDERSCORE`, `MIDDLE_DOT`, `EQUALS` |
+| Option     | Type                      | Description                           | Possible Values                                     |
+| ---------- | ------------------------- | ------------------------------------- | --------------------------------------------------- |
+| alignment  | `PositionalTabAlignment`  | The alignment of the tab stop         | `LEFT`, `RIGHT`, `CENTER`                           |
+| relativeTo | `PositionalTabRelativeTo` | The relative position of the tab stop | `MARGIN`, `INDENT`                                  |
+| leader     | `PositionalTabLeader`     | The leader of the tab stop            | `NONE`, `DOT`, `HYPHEN`, `UNDERSCORE`, `MIDDLE_DOT` |

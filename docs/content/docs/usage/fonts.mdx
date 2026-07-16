@@ -1,0 +1,99 @@
+---
+title: Custom Fonts
+---
+
+You can embed font files directly into your document so it renders correctly on machines that do not have the font installed. Pass a `fonts` array to `new Document({...})` with the font name and the raw `.ttf` data:
+
+```ts
+import * as fs from "fs";
+import { Document } from "betterdocx";
+
+const font = fs.readFileSync("./fonts/Pacifico.ttf");
+
+const doc = new Document({
+    sections: [
+        // ...
+    ],
+    fonts: [{ name: "Pacifico", data: font }],
+});
+```
+
+Embedding a font only makes it available to the document. To actually see it, reference the font by `name` in your runs or styles.
+
+## Options
+
+| Property     | Type           | Notes    | Possible Values                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------ | -------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name         | `string`       | Required | The name used to reference the font in runs and styles. Avoid `.` characters in the name.                                                                                                                                                                                                                                                                                                                                                             |
+| data         | `Buffer`       | Required | The raw contents of a TrueType (`.ttf`) font file                                                                                                                                                                                                                                                                                                                                                                                                     |
+| characterSet | `CharacterSet` | Optional | `CharacterSet.ANSI`, `CharacterSet.DEFAULT`, `CharacterSet.SYMBOL`, `CharacterSet.MAC`, `CharacterSet.JIS`, `CharacterSet.HANGUL`, `CharacterSet.JOHAB`, `CharacterSet.GB_2312`, `CharacterSet.CHINESEBIG5`, `CharacterSet.GREEK`, `CharacterSet.TURKISH`, `CharacterSet.VIETNAMESE`, `CharacterSet.HEBREW`, `CharacterSet.ARABIC`, `CharacterSet.BALTIC`, `CharacterSet.RUSSIAN`, `CharacterSet.THAI`, `CharacterSet.EASTEUROPE`, `CharacterSet.OEM` |
+
+## Using the embedded font
+
+There are two ways to apply an embedded font.
+
+### Per run
+
+Set the `font` property on individual runs (or on a paragraph's `run` defaults):
+
+```ts
+import * as fs from "fs";
+import { Document, Paragraph, TextRun } from "betterdocx";
+
+const font = fs.readFileSync("./fonts/Pacifico.ttf");
+
+const doc = new Document({
+    sections: [
+        {
+            children: [
+                new Paragraph({
+                    children: [
+                        new TextRun({
+                            text: "Hello World",
+                            font: "Pacifico",
+                        }),
+                    ],
+                }),
+            ],
+        },
+    ],
+    fonts: [{ name: "Pacifico", data: font }],
+});
+```
+
+### As the document default
+
+Set the font once in the default document style so every run uses it:
+
+```ts
+import * as fs from "fs";
+import { Document, Paragraph, TextRun } from "betterdocx";
+
+const font = fs.readFileSync("./fonts/Pacifico.ttf");
+
+const doc = new Document({
+    styles: {
+        default: {
+            document: {
+                run: {
+                    font: "Pacifico",
+                },
+            },
+        },
+    },
+    sections: [
+        {
+            children: [
+                new Paragraph({
+                    children: [new TextRun("Hello World")],
+                }),
+            ],
+        },
+    ],
+    fonts: [{ name: "Pacifico", data: font }],
+});
+```
+
+## How embedding works
+
+When the document is packed, each embedded font is obfuscated into the ODTTF format (`fonts/<name>.odttf` inside the `.docx` package), as required by the OOXML spec for embedded fonts. This happens automatically — you always pass regular `.ttf` data.

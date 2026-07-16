@@ -10,21 +10,18 @@ You can add multiple `symbol runs` in `Paragraphs` along with [text runs](../tex
 import { Paragraph, TextRun, SymbolRun } from "betterdocx";
 
 const paragraph = new Paragraph({
-    children: [
-        new TextRun("This is a checkbox: "),
-        new SymbolRun("F071")
-    ],
+    children: [new TextRun("This is a checkbox: "), new SymbolRun("F071")],
 });
 ```
 
 ## Specifying symbol font
 
-By default symbol runs will use the `Wingdings` font. To switch fonts, pass an object instead of a string to the `SymbolRun` constructor and specify `char` and `symbolfont` properties:
+By default symbol runs will use the `Wingdings` font. To switch fonts, pass an object instead of a string to the `SymbolRun` constructor and specify `char` and `symbolFont` properties:
 
 ```ts
 const symbol = new SymbolRun({
     char: "F071",
-    symbolfont: "Arial",
+    symbolFont: "Arial",
 });
 ```
 
@@ -40,16 +37,23 @@ Symbols are specified by their hexidecimal code. Ref http://officeopenxml.com/WP
 - `F0F0`: right arrow
 - `F0FE`: checked box
 
-## Typographical Emphasis
+## Run formatting
 
-Symbol runs can have their display modified just like text runs. For example, they can be bolded and italicized:
+Beyond `char` and `symbolFont`, `SymbolRun` accepts the full set of run options available on text runs — `size`, `color`, `font`, `underline`, `bold`, `italics`, `highlight`, `break`, and so on. For example:
 
 ```ts
 const symbol = new SymbolRun({
     char: "F071",
     bold: true,
     italics: true,
+    size: 48, // half-points, so 24pt
+    color: "FF0000",
+    underline: {
+        type: UnderlineType.SINGLE,
+        color: "0000FF",
+    },
+    highlight: "yellow",
 });
 ```
 
-See the [text run](../text) documentation for more info.
+See the [text run](../text) documentation for the full list of run options.

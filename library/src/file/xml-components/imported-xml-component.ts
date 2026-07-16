@@ -1,0 +1,103 @@
+import { Element as XmlElement, xml2js } from "xml-js";
+
+import { IXmlableObject, XmlAttributeComponent, XmlComponent } from "@file/xml-components";
+
+import { IContext } from "./base";
+
+/**
+ * Converts the given xml element (in json format) into XmlComponent.
+ *
+ * @param element the xml element in json presentation
+ */
+
+export const convertToXmlComponent = (
+    element: XmlElement,
+): ImportedXmlComponent | string | undefined => {
+    switch (element.type) {
+        case undefined:
+        case "element":
+            const xmlComponent = new ImportedXmlComponent(
+                element.name as string,
+                element.attributes,
+            );
+
+            const childElements = element.elements ?? [];
+            for (const childElm of childElements) {
+                const child = convertToXmlComponent(childElm);
+                if (child !== undefined) {
+                    xmlComponent.push(child);
+                }
+            }
+            return xmlComponent;
+        case "text":
+            return element.text as string;
+        default:
+            return undefined;
+        /* c8 ignore next 2 */
+    }
+};
+
+// oxlint-disable-next-line typescript/no-explicit-any -- imported attribute bag
+class ImportedXmlComponentAttributes extends XmlAttributeComponent<any> {
+    // noop
+}
+
+/**
+ * Represents imported xml component from xml file.
+ */
+export class ImportedXmlComponent extends XmlComponent {
+    /**
+     * Converts the xml string to a XmlComponent tree.
+     *
+     * @param importedContent xml content of the imported component
+     */
+    public static fromXmlString(importedContent: string): ImportedXmlComponent {
+        const xmlObj = xml2js(importedContent, { compact: false }) as XmlElement;
+
+        // xml2js returns a nameless wrapper document around the actual root
+        // element; converting the wrapper directly would produce a component
+        // with an undefined rootKey (serialized as a literal <undefined> tag).
+        const rootElement = xmlObj.elements?.find(
+            (element) => element.type === "element" || element.type === undefined,
+        );
+
+        if (!rootElement) {
+            throw new Error("Failed to parse XML string: no root element found");
+        }
+
+        return convertToXmlComponent(rootElement) as ImportedXmlComponent;
+    }
+    /**
+     * Converts the xml string to a XmlComponent tree.
+     *
+     * @param importedContent xml content of the imported component
+     */
+
+    // oxlint-disable-next-line typescript/no-explicit-any -- imported attribute bag
+    public constructor(rootKey: string, _attr?: any) {
+        super(rootKey);
+        if (_attr) {
+            this.root.push(new ImportedXmlComponentAttributes(_attr));
+        }
+    }
+
+    public push(xmlComponent: XmlComponent | string): void {
+        this.root.push(xmlComponent);
+    }
+}
+
+/**
+ * Used for the attributes of root element that is being imported.
+ */
+export class ImportedRootElementAttributes extends XmlComponent {
+    // oxlint-disable-next-line typescript/no-explicit-any -- imported attribute bag
+    public constructor(private readonly _attr: any) {
+        super("");
+    }
+
+    public prepForXml(_: IContext): IXmlableObject {
+        return {
+            _attr: this._attr,
+        };
+    }
+}

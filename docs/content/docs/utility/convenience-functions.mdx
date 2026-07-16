@@ -22,3 +22,62 @@ import { convertMillimetersToTwip } from "betterdocx";
 
 const twip = convertMillimetersToTwip(50); // returns 2834
 ```
+
+## Measurement strings
+
+Many size-related options across the API accept a measurement string instead of a raw twip number, so you can skip the conversion entirely. Two string types are used:
+
+- `UniversalMeasure` / `PositiveUniversalMeasure`: a number followed by a unit — `mm`, `cm`, `in`, `pt`, `pc` or `pi`. For example `"8.5in"`, `"12pt"`, `"2cm"`. The positive variant disallows negative values.
+- `Percentage`: a number followed by `%`, e.g. `"50%"`.
+
+Universal measures are accepted wherever the option type allows them alongside a number — for example page sizes and margins, paragraph indents and spacing, and font sizes. Table and column widths additionally accept a `Percentage`:
+
+```ts
+new Document({
+    sections: [
+        {
+            properties: {
+                page: {
+                    size: { width: "8.5in", height: "11in" },
+                    margin: { top: "2cm", bottom: "2cm" },
+                },
+            },
+            children: [
+                new Paragraph({
+                    indent: { left: "0.5in" },
+                    children: [new TextRun({ text: "Hello", size: "12pt" })],
+                }),
+                new Table({
+                    width: { size: "50%", type: WidthType.PERCENTAGE },
+                    rows: [/* ... */],
+                }),
+            ],
+        },
+    ],
+});
+```
+
+When a plain `number` is passed to these options instead, it is interpreted in the option's native unit (usually twips, or half-points for font sizes).
+
+## Unique ID generators
+
+These helpers are exported mainly for building custom low-level components (they are what the library uses internally); most users won't need them.
+
+| Function                            | Returns                                                                                                                                 |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `uniqueId()`                        | A random v4 UUID string. Uses `crypto.randomUUID()` where available, falling back to `crypto.getRandomValues()` outside secure contexts |
+| `hashedId(data)`                    | A deterministic content hash (FNV-1a + byte length) of a `string`, `Buffer`, `Uint8Array` or `ArrayBuffer`; used to deduplicate media   |
+| `uniqueNumericIdCreator(initial?)`  | A counter function that returns `initial + 1`, `initial + 2`, … on each call                                                            |
+| `docPropertiesUniqueNumericIdGen()` | Counter for drawing/document-property ids (starts at 1)                                                                                 |
+| `bookmarkUniqueNumericIdGen()`      | Counter for bookmark ids (starts at 1)                                                                                                  |
+
+```ts
+import { uniqueId, hashedId, uniqueNumericIdCreator } from "betterdocx";
+
+const id = uniqueId(); // e.g. "6fa459ea-ee8a-4ca4-894e-db77e160355e"
+const hash = hashedId("some content"); // e.g. "aabbccdd-12" (stable for the same input)
+
+const nextId = uniqueNumericIdCreator();
+nextId(); // 1
+nextId(); // 2
+```

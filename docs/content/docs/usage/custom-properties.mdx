@@ -1,0 +1,34 @@
+---
+title: Custom Document Properties
+---
+
+Standard document properties such as `creator`, `title` and `subject` cover typical use cases, but sometimes you need your own key/value metadata — for example to drive quick parts, custom cover pages or `DOCPROPERTY` fields after the document has been generated.
+
+Pass a `customProperties` array to `new Document({...})`:
+
+```ts
+import { Document } from "betterdocx";
+
+const doc = new Document({
+    creator: "Creator",
+    title: "Title",
+    subject: "Subject",
+    description: "Description",
+    customProperties: [
+        { name: "Subtitle", value: "Subtitle" },
+        { name: "Address", value: "Address" },
+    ],
+    sections: [],
+});
+```
+
+The properties appear in Word under **File → Info → Properties → Advanced Properties → Custom**.
+
+## Options
+
+Each entry in `customProperties` has the following properties:
+
+| Property | Type     | Notes    | Possible Values           |
+| -------- | -------- | -------- | ------------------------- |
+| name     | `string` | Required | The name of the property  |
+| value    | `string` | Required | The value of the property |

@@ -26,3 +26,61 @@ new Textbox({
     },
 });
 ```
+
+## Paragraph Options
+
+Besides `style`, a `Textbox` accepts all [Paragraph](paragraph) options (`alignment`, `spacing`, `indent`, `numbering`, etc.). These are applied to the paragraph that anchors the text box in the document flow. For example, `alignment: "center"` in the example above centers the box on the page.
+
+## Style Options
+
+The `style` object describes the VML shape itself. `width` is required; all other properties are optional.
+
+Length values (`LengthUnit`) can be a number, a measurement string such as `"200pt"` or `"50%"`, or `"auto"`.
+
+| Option                     | Type                                                                   | Description                                                                                                    |
+| -------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| width                      | `LengthUnit`                                                           | Width of the shape's containing block. Required.                                                               |
+| height                     | `LengthUnit`                                                           | Height of the shape's containing block.                                                                        |
+| position                   | `"static" \| "absolute" \| "relative"`                                 | Type of positioning used to place the shape. Default is `static`.                                              |
+| left                       | `LengthUnit`                                                           | Position of the left edge relative to the element left of it in the page flow. Not for inline-anchored shapes. |
+| top                        | `LengthUnit`                                                           | Position of the top edge relative to the element above it in the page flow. Not for inline-anchored shapes.    |
+| rotation                   | `number`                                                               | Angle the shape is rotated, in degrees. Positive angles are clockwise.                                         |
+| flip                       | `"x" \| "y" \| "xy" \| "yx"`                                           | Flips the orientation of the shape.                                                                            |
+| zIndex                     | `"auto" \| number`                                                     | Display order of overlapping shapes. Not for inline-anchored shapes.                                           |
+| visibility                 | `"hidden" \| "inherit"`                                                | Whether the shape is displayed. Default is `inherit`.                                                          |
+| positionHorizontal         | `"absolute" \| "left" \| "center" \| "right" \| "inside" \| "outside"` | Horizontal positioning of the shape. Default is `absolute`.                                                    |
+| positionHorizontalRelative | `"margin" \| "page" \| "text" \| "char"`                               | What `positionHorizontal` is relative to. Default is `text`.                                                   |
+| positionVertical           | `"absolute" \| "left" \| "center" \| "right" \| "inside" \| "outside"` | Vertical positioning of the shape. Default is `absolute`.                                                      |
+| positionVerticalRelative   | `"margin" \| "page" \| "text" \| "char"`                               | What `positionVertical` is relative to. Default is `text`.                                                     |
+| marginLeft                 | `LengthUnit`                                                           | Position of the left of the containing block relative to the shape anchor.                                     |
+| marginRight                | `LengthUnit`                                                           | Position of the right of the containing block relative to the shape anchor.                                    |
+| marginTop                  | `LengthUnit`                                                           | Position of the top of the containing block relative to the shape anchor.                                      |
+| marginBottom               | `LengthUnit`                                                           | Position of the bottom of the containing block relative to the shape anchor.                                   |
+| wrapStyle                  | `"square" \| "none"`                                                   | Wrapping mode for text around the shape. Default is `square`.                                                  |
+| wrapDistanceLeft           | `number`                                                               | Distance in points from the left side of the shape to the wrapping text.                                       |
+| wrapDistanceRight          | `number`                                                               | Distance in points from the right side of the shape to the wrapping text.                                      |
+| wrapDistanceTop            | `number`                                                               | Distance in points from the top of the shape to the wrapping text.                                             |
+| wrapDistanceBottom         | `number`                                                               | Distance in points from the bottom of the shape to the wrapping text.                                          |
+| wrapEdited                 | `boolean`                                                              | Whether the wrap coordinates were customized by the user. Default is `false`.                                  |
+
+### Positioned and rotated example
+
+```ts
+new Textbox({
+    children: [
+        new Paragraph({
+            children: [new TextRun("I float above the page!")],
+        }),
+    ],
+    style: {
+        width: "150pt",
+        height: "50pt",
+        position: "absolute",
+        left: "100pt",
+        top: "40pt",
+        rotation: 15,
+        zIndex: 10,
+        wrapStyle: "none",
+    },
+});
+```

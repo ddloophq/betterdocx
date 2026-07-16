@@ -10,16 +10,16 @@ There are very complicated fields like the table of contents, but in many cases 
 
 Word uses field codes to identify what the result of the field should be. You can find these field codes by adding a field in a document (`Insert -> Quick Parts -> Field...`) and clicking the 'Field codes'-button. Some examples include:
 
-Field type  | Example         | Description
------------ | --------------- | ---------------------------------------------------------
-= (Formula) | `=2*21`         | Calculates the result of a formula. You can also use bookmarks as variables, see below.
-Author      | `AUTHOR`        | Includes the author mentioned in the document properties.
-CreateDate  | `CREATEDATE`    | Date the document was created.
-Date        | `DATE`          | Today's date.
-FileName    | `FILENAME \p`   | The name of the document. Add `\p` for the complete path.
-Info        | `INFO NumWords` | Data from the document properties, e.g. the number of words in the document.
-NumPages    | `NUMPAGES`      | Number of pages in the document.
-UserName    | `USERNAME`      | Your user name from the Office personalization settings.
+| Field type  | Example         | Description                                                                             |
+| ----------- | --------------- | --------------------------------------------------------------------------------------- |
+| = (Formula) | `=2*21`         | Calculates the result of a formula. You can also use bookmarks as variables, see below. |
+| Author      | `AUTHOR`        | Includes the author mentioned in the document properties.                               |
+| CreateDate  | `CREATEDATE`    | Date the document was created.                                                          |
+| Date        | `DATE`          | Today's date.                                                                           |
+| FileName    | `FILENAME \p`   | The name of the document. Add `\p` for the complete path.                               |
+| Info        | `INFO NumWords` | Data from the document properties, e.g. the number of words in the document.            |
+| NumPages    | `NUMPAGES`      | Number of pages in the document.                                                        |
+| UserName    | `USERNAME`      | Your user name from the Office personalization settings.                                |
 
 Fields can be added as a child of a paragraph:
 
@@ -33,7 +33,10 @@ Fields can contain a cached value that gives the word processor a text to show w
 
 ```ts
 const paragraph = new Paragraph({
-    children: [new TextRun("This document was created by: "), new SimpleField("AUTHOR", "Richard Brodie")],
+    children: [
+        new TextRun("This document was created by: "),
+        new SimpleField("AUTHOR", "Richard Brodie"),
+    ],
 });
 ```
 
@@ -45,9 +48,9 @@ One type of field is the formula that can be used to do some basic calculations.
 const paragraph = new Paragraph({
     children: [
         new TextRun("Value one is: "),
-        new Bookmark({ id: "One", children: [new TextRun("451")]}),
+        new Bookmark({ id: "One", children: [new TextRun("451")] }),
         new TextRun(". The second value is: "),
-        new Bookmark({ id: "Two", children: [new TextRun("886")]}),
+        new Bookmark({ id: "Two", children: [new TextRun("886")] }),
         new TextRun(". The sum of these values is: "),
         new SimpleField("=One+Two"),
     ],
@@ -62,7 +65,11 @@ A convenience class was added to add these mail merge fields to the document eas
 
 ```ts
 const paragraph = new Paragraph({
-    children: [new TextRun("Your score was "), new SimpleMailMergeField("Score"), new TextRun(" of 100 points")],
+    children: [
+        new TextRun("Your score was "),
+        new SimpleMailMergeField("Score"),
+        new TextRun(" of 100 points"),
+    ],
 });
 ```
 
@@ -70,6 +77,71 @@ This code is equivalent to:
 
 ```ts
 const paragraph = new Paragraph({
-    children: [new TextRun("Your score was "), new SimpleField("MERGEFIELD Score", "«Score»"), new TextRun(" of 100 points")],
+    children: [
+        new TextRun("Your score was "),
+        new SimpleField(" MERGEFIELD Score ", "«Score»"),
+        new TextRun(" of 100 points"),
+    ],
 });
 ```
+
+`SimpleMailMergeField` automatically sets the cached value to the field name wrapped in guillemets (`«Score»`). This is the conventional merge field placeholder, so the document shows `«Score»` wherever the value will be inserted until the mail merge (or a field update) replaces it with real data.
+
+## Sequential captions
+
+Word can number figures, tables and other items automatically with `SEQ` fields. The `SequentialIdentifier` class inserts such a field: pass it the name of a sequence, and Word keeps a separate counter per name, incrementing it with each occurrence in the document. This is how captions like "Figure 1" and "Table 2" are built:
+
+```ts
+const figureCaption = new Paragraph({
+    children: [
+        new TextRun("Figure "),
+        new SequentialIdentifier("Figure"),
+        new TextRun(" - Data flow diagram"),
+    ],
+});
+
+const tableCaption = new Paragraph({
+    children: [
+        new TextRun("Table "),
+        new SequentialIdentifier("Table"),
+        new TextRun(" - Results per quarter"),
+    ],
+});
+```
+
+Each `SequentialIdentifier("Figure")` renders a `SEQ Figure` field. Sequences with different names are numbered independently. The field is written without a cached value and marked as dirty, so the word processor calculates the numbers when the document is opened (or when you select the text and press F9).
+
+## Complex fields (advanced)
+
+Everything that cannot be expressed as a single `SimpleField` is written as a _complex field_: a sequence of run contents delimited by special field characters. A complex field consists of:
+
+1. A `Begin` field character (`<w:fldChar w:fldCharType="begin"/>`) that opens the field.
+2. One or more instruction text elements (`<w:instrText>`) containing the field code, e.g. `SEQ Figure`.
+3. A `Separate` field character that separates the instruction from the field result.
+4. Optional runs containing the cached result text.
+5. An `End` field character that closes the field.
+
+The `Begin`, `Separate` and `End` classes each take an optional `dirty` flag. `new Begin(true)` renders `<w:fldChar w:fldCharType="begin" w:dirty="true"/>`, which tells the word processor to recalculate the field result the next time the document is opened — useful because generated fields usually carry no cached result.
+
+This is exactly how `PageReference`, `SequentialIdentifier`, `TableOfContents` and the `PageNumber` values are implemented internally, and the building blocks are exported so you can assemble your own fields. `Begin`, `Separate` and `End` emit the field characters, and `InstructionText` emits a `<w:instrText>` element with a raw field code of your choosing:
+
+```ts
+import { Begin, End, InstructionText, Paragraph, Run, Separate, TextRun } from "betterdocx";
+
+const lastSavedBy = new Paragraph({
+    children: [
+        new TextRun("Last saved by "),
+        new Run({
+            children: [
+                new Begin(true), // <w:fldChar w:fldCharType="begin" w:dirty="true"/>
+                new InstructionText("LASTSAVEDBY"), // <w:instrText xml:space="preserve">LASTSAVEDBY</w:instrText>
+                new Separate(),
+                // cached result runs would go here
+                new End(),
+            ],
+        }),
+    ],
+});
+```
+
+For simple field codes with an optional cached value (e.g. `DATE`), [`SimpleField`](#simple-fields) is usually the shorter option — a complex field is only needed when the field spans multiple runs, carries styled cached content, or nests other fields.
