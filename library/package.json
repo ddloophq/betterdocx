@@ -79,7 +79,7 @@
         "jsdom": "^29.1.1",
         "publint": "^0.3.21",
         "tsdown": "^0.22.7",
-        "typescript": "6.0.3",
+        "typescript": "7.0.2",
         "unzipper": "^0.12.5",
         "vitest": "^4.1.10"
     },
